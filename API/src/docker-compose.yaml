@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  cilent:
+    image: client
+    depends_on:
+      - silo
+    hostname: api
+    restart: always
+    build:
+      context: .
+      dockerfile: Client/Dockerfile
+  silo:
+    image: silo
+    hostname: silo
+    build:
+      context: .
+      dockerfile: Silo.Host/Dockerfile
