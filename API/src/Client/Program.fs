@@ -36,5 +36,6 @@ let main _ =
     }
 
     t.Wait()
+    printfn "Press any keys to terminate..."
     Console.ReadKey() |> ignore
     0
