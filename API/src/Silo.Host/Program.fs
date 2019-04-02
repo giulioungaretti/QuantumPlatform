@@ -8,13 +8,23 @@ open Grains
 open Interfaces
 open System.Runtime.Loader
 open Microsoft.Extensions.Logging
+open Orleans.Configuration
 
 
+// NOTE: this is fine but not optimal!
+// Did not manage to use f# to run with the .net core generic host
+// see branch feat/generic :(
 
+let connectionString = Environment.GetEnvironmentVariable "OrleansTableUrl" 
 let buildSiloHost () =
       let builder = SiloHostBuilder()
       builder
-        .UseLocalhostClustering()
+        .Configure<ClusterOptions>(fun (options:ClusterOptions) -> 
+              options.ClusterId <- "orleans-dev-docker"; 
+              options.ServiceId <- "FsharpOrleansDev")
+        .ConfigureEndpoints(siloPort=11111, gatewayPort=30000)
+        .UseAzureStorageClustering(fun (options:AzureStorageClusteringOptions)-> 
+               options.ConnectionString <- connectionString )
         .ConfigureApplicationParts(fun parts ->
             parts.AddApplicationPart(typeof<HelloGrain>.Assembly)
                   .AddApplicationPart(typeof<IHello>.Assembly)
