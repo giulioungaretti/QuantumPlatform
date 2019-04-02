@@ -1,41 +1,99 @@
-﻿open System
-open System.Threading.Tasks
+module GiraffeServer.App
+
+open System
+open System.IO
+open Microsoft.AspNetCore.Builder
+open Microsoft.AspNetCore.Cors.Infrastructure
+open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Configuration
+open Microsoft.Extensions.DependencyInjection
+open Giraffe
+open GiraffeServer.HttpHandlers
+
 open Orleans
-open Orleans.Runtime.Configuration
-open Orleans.Hosting
-open FSharp.Control.Tasks
 
-open Interfaces
-
-let buildClient () =
-      let builder = ClientBuilder()
-      builder
-        .UseLocalhostClustering()
-        .ConfigureApplicationParts(fun parts -> parts.AddApplicationPart((typeof<IHello>).Assembly).WithCodeGeneration() |> ignore )
-        .ConfigureLogging(fun logging -> logging.AddConsole() |> ignore)
-        .Build()
-
-let worker (client : IClusterClient) =
-    task {
-        let friend = client.GetGrain<IHello> 0L
-        let! response = friend.SayHello ("Good morning, my friend!")
-        printfn "%s" response
+[<CLIMutable>]
+type Config =
+    {
+        OrleansTableURL : string
     }
+
+
+let webApp =
+    choose [
+        subRoute "/api"
+            (choose [
+                GET >=> choose [
+                    route "/hello" >=> handleGetHello
+                ]
+            ])
+        setStatusCode 404 >=> text "Not Found giraffe" ]
+
+// ---------------------------------
+// Error handler
+// ---------------------------------
+
+let errorHandler (ex : Exception) (logger : ILogger) =
+    logger.LogError(ex, "An unhandled exception has occurred while executing the request.")
+    clearResponse >=> setStatusCode 500 >=> text ex.Message
+
+// ---------------------------------
+// Config and Main
+// ---------------------------------
+
+let configureCors (builder : CorsPolicyBuilder) =
+    builder.WithOrigins("http://localhost:8080")
+           .AllowAnyMethod()
+           .AllowAnyHeader()
+           |> ignore
+
+let configureApp (app : IApplicationBuilder) =
+    let env = app.ApplicationServices.GetService<IHostingEnvironment>()
+    (match env.IsDevelopment() with
+    | true  -> app.UseDeveloperExceptionPage()
+    | false -> app.UseGiraffeErrorHandler errorHandler)
+        .UseHttpsRedirection()
+        .UseCors(configureCors)
+        .UseGiraffe(webApp)
+
+let configureLogging (context:WebHostBuilderContext) (builder : ILoggingBuilder) =
+    let conf = context.Configuration.GetSection("Logging")
+    builder.AddConfiguration(conf).AddConsole()
+           .AddDebug() |> ignore
+
+let configureServices (services : IServiceCollection) =
+    let conf  = services.BuildServiceProvider().GetService<IConfiguration>()
+    let url = conf.GetSection("OrleansTableUrl").Get<Config>().OrleansTableURL
+    services.AddCors()
+        .AddGiraffe()
+        .AddSingleton<IClusterClient> (OrleansClient.client url) |> ignore
+
+let configureAppConfiguration (context:WebHostBuilderContext) (config: IConfigurationBuilder) =  
+    config 
+       .AddJsonFile("appsettings.json",false,true)
+       .AddJsonFile(sprintf "appsettings.%s.json" context.HostingEnvironment.EnvironmentName ,true, true)
+       .AddEnvironmentVariables() |> ignore
+    let env = context.HostingEnvironment
+    (match env.IsDevelopment() with
+    | true -> 
+        config.AddUserSecrets<Config>() |> ignore
+    | false -> 
+        ()
+    )
+
 
 [<EntryPoint>]
-let main _ =
-    let t = task {
-        use client = buildClient()
-        do! client.Connect( fun (ex: Exception) -> task {
-            do! Task.Delay(1000)
-            return true
-        })
-        printfn "Client successfully connect to silo host"
-        do! worker client
-    }
 
-    t.Wait()
-    printfn "Press any keys to terminate..."
-    Console.ReadKey() |> ignore
+let main _ =
+    WebHostBuilder()
+        .UseKestrel()
+        .UseContentRoot(Directory.GetCurrentDirectory())
+        .UseIISIntegration()
+        .ConfigureAppConfiguration(configureAppConfiguration)
+        .Configure(Action<IApplicationBuilder> configureApp)
+        .ConfigureServices(configureServices)
+        .ConfigureLogging(configureLogging)
+        .Build()
+        .Run()
     0

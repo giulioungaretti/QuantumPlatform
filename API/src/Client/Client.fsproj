@@ -1,23 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <UserSecretsId>e7f52686-cd6b-4b7d-808b-da5f8452911c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Models.fs" />
+    <Compile Include="HttpHandlers.fs" />
+    <Compile Include="OrleansClient.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="TaskBuilder.fs" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Orleans.Client" Version="2.3" />
     <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator" Version="2.3" />
+    <PackageReference Include="Microsoft.Orleans.Client" Version="2.3" />
+    <PackageReference Include="Microsoft.Orleans.Clustering.AzureStorage" Version="2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.*" />
+    <PackageReference Include="Giraffe" Version="3.4.*" />
+    <PackageReference Include="TaskBuilder.fs" Version="2.1.*" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Interfaces\Interfaces.fsproj" />
+    <ProjectReference Include="..\Grains\Grains.fsproj" />
   </ItemGroup>
-
 </Project>

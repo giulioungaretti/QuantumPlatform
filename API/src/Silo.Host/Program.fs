@@ -8,13 +8,18 @@ open Grains
 open Interfaces
 open System.Runtime.Loader
 open Microsoft.Extensions.Logging
-
+open Orleans.Configuration
 
 
 let buildSiloHost () =
       let builder = SiloHostBuilder()
       builder
-        .UseLocalhostClustering()
+        .Configure<ClusterOptions>(fun (options:ClusterOptions) -> 
+              options.ClusterId <- "orleans-dev-docker"; 
+              options.ServiceId <- "FsharpOrleansDev")
+        .ConfigureEndpoints(siloPort=11111, gatewayPort=30000)
+        .UseAzureStorageClustering(fun (options:AzureStorageClusteringOptions)-> 
+               options.ConnectionString <- connectionString )
         .ConfigureApplicationParts(fun parts ->
             parts.AddApplicationPart(typeof<HelloGrain>.Assembly)
                   .AddApplicationPart(typeof<IHello>.Assembly)
