@@ -1,5 +1,4 @@
-FROM microsoft/dotnet:2.1-sdk AS base
-WORKDIR /app
+FROM microsoft/dotnet:2.2-sdk AS base
 # TODO: expose the correct port 
 EXPOSE 80
 
@@ -15,8 +14,7 @@ WORKDIR /src/Client/
 RUN dotnet build -c Release -o /app
 RUN dotnet publish -c Release -o /app
 
-FROM microsoft/dotnet:2.1-runtime as final
-
+FROM microsoft/dotnet:2:2-aspnetcore-runtime as final
 WORKDIR /app
 COPY --from=base /app .
 ENTRYPOINT ["dotnet", "Client.dll"]
