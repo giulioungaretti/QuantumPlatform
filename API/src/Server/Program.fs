@@ -12,13 +12,7 @@ open Giraffe
 open GiraffeServer.HttpHandlers
 
 open Orleans
-
-[<CLIMutable>]
-type Config =
-    {
-        OrleansTableURL : string
-    }
-
+open Config
 
 let webApp =
     choose [
@@ -26,6 +20,7 @@ let webApp =
             (choose [
                 GET >=> choose [
                     route "/hello" >=> handleGetHello
+                    route "/hey" >=> handleGetHey
                 ]
             ])
         setStatusCode 404 >=> text "Not Found giraffe" ]
@@ -67,6 +62,7 @@ let configureServices (services : IServiceCollection) =
     let url = conf.GetSection("OrleansTableUrl").Get<Config>().OrleansTableURL
     services.AddCors()
         .AddGiraffe()
+        .AddSingleton<Giraffe.Serialization.Json.IJsonSerializer>(Thoth.Json.Giraffe.ThothSerializer()) 
         .AddSingleton<IClusterClient> (OrleansClient.client url) |> ignore
 
 let configureAppConfiguration (context:WebHostBuilderContext) (config: IConfigurationBuilder) =  
@@ -89,6 +85,7 @@ let main _ =
     WebHostBuilder()
         .UseKestrel()
         .UseContentRoot(Directory.GetCurrentDirectory())
+
         .UseIISIntegration()
         .ConfigureAppConfiguration(configureAppConfiguration)
         .Configure(Action<IApplicationBuilder> configureApp)

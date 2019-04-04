@@ -1,7 +1,4 @@
-﻿open System
-open System.Net
-open System.Threading.Tasks
-open Grains
+﻿open Grains
 open Interfaces
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.Hosting
@@ -9,14 +6,7 @@ open Microsoft.Extensions.Configuration
 open Orleans
 open Orleans.Configuration
 open Orleans.Hosting
-
-
-
-[<CLIMutable>]
-type Config =
-    {
-        OrleansTableURL : string
-    }
+open Config
 
 let buildSiloHost (context: Microsoft.Extensions.Hosting.HostBuilderContext) (siloBuilder:ISiloBuilder) =
        let conf  = context.Configuration
