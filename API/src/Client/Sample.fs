@@ -61,17 +61,3 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     [ Column.column [] [ button "-" (fun _ -> dispatch NoOp) ]
                       Column.column [] [ button "+" (fun _ -> dispatch NoOp) ] ] ]
         ]
-
-// #if DEBUG
-// open Elmish.Debug
-// #endif
-
-// Program.mkProgram init update view
-// #if DEBUG
-// |> Program.withConsoleTrace
-// #endif
-// |> Program.withReact "elmish-app"
-// #if DEBUG
-// |> Program.withDebugger
-// #endif
-// |> Program.run
