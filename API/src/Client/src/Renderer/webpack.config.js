@@ -16,7 +16,7 @@ var CONFIG = {
   // The tags to include the generated JS and CSS will be automatically injected in the HTML template
   // See https://github.com/jantimon/html-webpack-plugin
   indexHtmlTemplate: "./index.html",
-  fsharpEntry: "./Client.fsproj",
+  fsharpEntry: "./Renderer.fsproj",
   cssEntry: "./style.sass",
   outputDir: "./deploy",
   assetsDir: "./public",
