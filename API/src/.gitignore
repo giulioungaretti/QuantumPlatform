@@ -13,3 +13,4 @@ release.sh
 *.DotSettings.user
 deploy
 .build.fsx.loc
+.DS_Store
