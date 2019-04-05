@@ -1,4 +1,6 @@
 var path = require("path");
+
+var CopyWebpackPlugin = require("copy-webpack-plugin");
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 
 function resolve(filePath) {
@@ -13,8 +15,11 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       filename: "index.html",
-      template: resolve(".src/Renderer/index.html")
-    })
+      template: resolve("./src/Renderer/index.html")
+    }),
+    new CopyWebpackPlugin([
+      { from: resolve("./src/Renderer/public"), to: "./src/Renderer/public" }
+    ])
   ],
   output: {
     filename: "renderer.js"
@@ -26,6 +31,10 @@ module.exports = {
         use: {
           loader: "fable-loader"
         }
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)(\?.*)?$/,
+        use: ["file-loader"]
       }
     ]
   }
