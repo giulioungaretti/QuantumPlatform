@@ -1,13 +1,20 @@
 var path = require("path");
+var HtmlWebpackPlugin = require("html-webpack-plugin");
 
 function resolve(filePath) {
-  return path.join(__dirname, filePath);
+  return path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath);
 }
 
 module.exports = {
   entry: [
     resolve("src/Renderer/Renderer.fsproj"),
     resolve("src/Renderer/style.sass")
+  ],
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: "index.html",
+      template: resolve(".src/Renderer/index.html")
+    })
   ],
   output: {
     filename: "renderer.js"

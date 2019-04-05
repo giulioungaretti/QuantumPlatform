@@ -1,6 +1,7 @@
 {
   "name": "qanumplatform",
   "private": true,
+  "version": "0.0.1",
   "scripts": {
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
