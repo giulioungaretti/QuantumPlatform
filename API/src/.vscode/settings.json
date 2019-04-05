@@ -1,0 +1,9 @@
+{
+    "files.exclude": {
+        ".fake": true,
+        "**/.fable": true,
+        "**/bin": true,
+        "**/deploy": true,
+        "**/obj": true
+    }
+}

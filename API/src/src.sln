@@ -11,6 +11,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Interfaces", "Interfaces\In
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SiloHost", "Silo.Host\SiloHost.fsproj", "{1C122266-04C3-41A4-B4C5-A3C7C4D82FBB}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Server", "Server\Server.fsproj", "{80FF4DCC-A0EF-4F09-8B09-788383B6988F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,17 @@ Global
 		{1C122266-04C3-41A4-B4C5-A3C7C4D82FBB}.Release|x64.Build.0 = Release|Any CPU
 		{1C122266-04C3-41A4-B4C5-A3C7C4D82FBB}.Release|x86.ActiveCfg = Release|Any CPU
 		{1C122266-04C3-41A4-B4C5-A3C7C4D82FBB}.Release|x86.Build.0 = Release|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Debug|x64.Build.0 = Debug|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Debug|x86.Build.0 = Debug|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Release|x64.ActiveCfg = Release|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Release|x64.Build.0 = Release|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Release|x86.ActiveCfg = Release|Any CPU
+		{80FF4DCC-A0EF-4F09-8B09-788383B6988F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
