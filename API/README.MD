@@ -14,10 +14,15 @@ First pass contains all the things needed for the api:
 - docker to build all the pieces
 - .net core
 
+## missing pieces
 
-## missing pieces 
+### 'produciton' deploy
+
+Getting the artifacts complied and ready to go is implemented, but it's far from prod ready.
+The actual deploy part is missing al togheter :D
 
 ### auth and permission
+
 This demo leaves out auth and permissions because of time.
 
 Auth would be implemented with an external service implemeting oauth//open id.
@@ -29,5 +34,3 @@ The orlean backend would not know about auth.
 Permission is a tad more complicated and could be implemented both as an actor
 in orleans, or as an external service that owns the permission data and scheme.
 If time allows, more plans shall appear here.
-
-

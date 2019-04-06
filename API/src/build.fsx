@@ -1,3 +1,4 @@
+open System.IO
 #r "paket:
 nuget Fake.IO.FileSystem
 nuget Fake.DotNet.Cli
@@ -17,8 +18,12 @@ open Fake.IO
 
 let serverPath = Path.getFullName "./Server"
 let clientPath = Path.getFullName "./Client"
-let clientDeployPathWeb = Path.combine clientPath "/src/Renderer/deploy"
+let clientPathMain = Path.combine clientPath "src/Main"
+let clientPathWeb = Path.combine clientPath "src/Renderer"
+let clientDeployPathWeb = Path.combine clientPathWeb "deploy"
 let clientDeployPathElectron = Path.combine clientPath "dist"
+let fableCache p = Path.combine p "/.fable" 
+let nodeModules p = Path.combine p "/node_modules"
 let deployDir = Path.getFullName "./deploy"
 
 let platformTool tool winTool =
@@ -57,11 +62,26 @@ let openBrowser url =
     |> Proc.run
     |> ignore
 
+// remove all the caches because sometimes
+// fable gets stuck (? node )
+Target.create "HardClean" (fun _ ->
+    [ deployDir
+      clientDeployPathWeb
+      clientDeployPathElectron
+      fableCache clientPath
+      fableCache clientPathWeb
+      nodeModules clientPath
+      nodeModules clientPathWeb
+      ]
+    |> Shell.cleanDirs
+)
+
 
 Target.create "Clean" (fun _ ->
     [ deployDir
       clientDeployPathWeb
-      clientDeployPathElectron]
+    //   clientDeployPathElectron
+    ]
     |> Shell.cleanDirs
 )
 
@@ -70,13 +90,29 @@ Target.create "InstallClient" (fun _ ->
     runTool nodeTool "--version" clientPath 
     printfn "Yarn version:"
     runTool yarnTool "--version" clientPath 
-    runTool yarnTool "install --frozen-lockfile" clientPath 
-    runDotNet "restore" clientPath
+    runTool yarnTool "install --frozen-lockfile" clientPathWeb
+    runDotNet "restore" clientPathMain
+    runDotNet "restore" clientPathWeb
 )
 
-Target.create "Build" (fun _ ->
+Target.create "InstallClientElectron" (fun _ ->
+    printfn "Node version:"
+    runTool nodeTool "--version" clientPath 
+    printfn "Yarn version:"
+    runTool yarnTool "--version" clientPath 
+    runTool yarnTool "install --frozen-lockfile" clientPath 
+    runDotNet "restore" clientPathMain
+    runDotNet "restore" clientPathWeb
+)
+
+Target.create "BuildWeb" (fun _ ->
     runDotNet "build" serverPath
-    runTool yarnTool "webpack-cli -p" clientPath 
+    runTool yarnTool "webpack-cli -p" clientPathWeb
+)
+
+Target.create "BuildElectron" (fun _ ->
+    runDotNet "build" serverPath
+    runTool yarnTool "dist" clientPathWeb
 )
 
 Target.create "Server" ( fun _ ->
@@ -87,9 +123,9 @@ Target.create "Server" ( fun _ ->
     |> ignore
 )
 
-Target.create "Client" (fun _ ->
+Target.create "ClientWeb" (fun _ ->
     let client = async {
-        return runTool yarnTool "webpack-dev-server" clientPath
+        return runTool yarnTool "webpack-dev-server" clientPathWeb
     }
     let browser = async {
         do! Async.Sleep 5000
@@ -103,12 +139,47 @@ Target.create "Client" (fun _ ->
     |> ignore
  )
 
+Target.create "ClientElectron" (fun _ ->
+    let client = async {
+        return runTool yarnTool "dev" clientPath
+    }
+    client 
+    |> Async.RunSynchronously
+    |> ignore
+ )
+
 Target.create "Run" (fun _ ->
     let server = async {
         runDotNet "watch run" serverPath
     }
     let client = async {
-        runTool yarnTool "webpack-dev-server" clientPath
+        runTool yarnTool "webpack-dev-server" clientPathWeb
+    }
+    let browser = async {
+        do! Async.Sleep 5000
+        openBrowser "http://localhost:8080"
+    }
+
+    let vsCodeSession = Environment.hasEnvironVar "vsCodeSession"
+    let safeClientOnly = Environment.hasEnvironVar "safeClientOnly"
+
+    let tasks =
+        [ if not safeClientOnly then yield server
+          yield client
+          if not vsCodeSession then yield browser ]
+
+    tasks
+    |> Async.Parallel
+    |> Async.RunSynchronously
+    |> ignore
+)
+
+Target.create "RunElectron" (fun _ ->
+    let server = async {
+        runDotNet "watch run" serverPath
+    }
+    let client = async {
+        runTool yarnTool "dev" clientPath
     }
     let browser = async {
         do! Async.Sleep 5000
@@ -137,11 +208,20 @@ open Fake.Core.TargetOperators
 
 "Clean"
     ==> "InstallClient"
-    ==> "Build"
+    ==> "BuildWeb"
 
+
+"Clean"
+    ==> "HardClean"
+    ==> "InstallClientElectron"
+    ==> "BuildElectron"
 
 "Clean"
     ==> "InstallClient"
     ==> "Run"
+
+"Clean"
+    ==> "InstallClient"
+    ==> "RunElectron"
 
 Target.runOrDefaultWithArguments "Build"
