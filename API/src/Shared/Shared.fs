@@ -1,9 +1,8 @@
 namespace Shared
 
-type Counter = { Value : int }
+type Counter =
+    { Value : int }
 
-type Sample = {
-    Name : string
-    Time : int64
-}
-
+type Sample =
+    { Name : string option
+      Time : System.DateTime }
