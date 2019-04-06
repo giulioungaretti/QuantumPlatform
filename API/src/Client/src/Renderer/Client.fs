@@ -52,6 +52,10 @@ module app =
 
     // UPDATE
     let update (msg : Msg) (model : Model) =
-        match msg with
-        | SetRoute route -> setRoute route model
-        | _ -> model, Cmd.none
+        match (msg, model.currentPage) with
+        | (SetRoute route, _) -> setRoute route model
+        | (SampleMsg msg', NewSample model') ->
+            let model', cmd = Sample.update msg' model'
+            { model with currentPage = NewSample model' }, Cmd.map SampleMsg cmd
+        // wrong message to wrong page
+        | (_, _) -> model, Cmd.none
