@@ -17,7 +17,8 @@ open Fake.IO
 
 let serverPath = Path.getFullName "./Server"
 let clientPath = Path.getFullName "./Client"
-let clientDeployPath = Path.combine clientPath "deploy"
+let clientDeployPathWeb = Path.combine clientPath "/src/Renderer/deploy"
+let clientDeployPathElectron = Path.combine clientPath "dist"
 let deployDir = Path.getFullName "./deploy"
 
 let platformTool tool winTool =
@@ -59,7 +60,8 @@ let openBrowser url =
 
 Target.create "Clean" (fun _ ->
     [ deployDir
-      clientDeployPath ]
+      clientDeployPathWeb
+      clientDeployPathElectron]
     |> Shell.cleanDirs
 )
 
