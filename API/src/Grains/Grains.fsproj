@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <UserSecretsId>e7f52686-cd6b-4b7d-808b-da5f8452911c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,10 +13,12 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="2.3" />
     <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator" Version="2.3" />
+    <PackageReference Include="TaskBuilder.fs" Version="2.1.*" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Interfaces\Interfaces.fsproj" />
+    <ProjectReference Include="..\Shared\Shared.fsproj" />
   </ItemGroup>
 
 </Project>

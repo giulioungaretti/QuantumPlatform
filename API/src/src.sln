@@ -19,6 +19,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Server", "Server\Server.fsp
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Renderer", "Client\src\Renderer\Renderer.fsproj", "{266CB8ED-7E91-484A-BB0D-2CF5CF1D4573}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Shared", "Shared\Shared.fsproj", "{D941391C-051E-4234-8EA9-2E54DC8C4C82}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,18 @@ Global
 		{266CB8ED-7E91-484A-BB0D-2CF5CF1D4573}.Release|x64.Build.0 = Release|Any CPU
 		{266CB8ED-7E91-484A-BB0D-2CF5CF1D4573}.Release|x86.ActiveCfg = Release|Any CPU
 		{266CB8ED-7E91-484A-BB0D-2CF5CF1D4573}.Release|x86.Build.0 = Release|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Debug|x64.Build.0 = Debug|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Debug|x86.Build.0 = Debug|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Release|x64.ActiveCfg = Release|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Release|x64.Build.0 = Release|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Release|x86.ActiveCfg = Release|Any CPU
+		{D941391C-051E-4234-8EA9-2E54DC8C4C82}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1148EED9-0FCD-4329-BC22-2FE4E86151A9} = {79C33C60-D530-4ECB-8355-E99B5B2439D8}

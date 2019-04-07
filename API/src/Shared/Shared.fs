@@ -1,8 +1,7 @@
 namespace Shared
 
-type Counter =
-    { Value : int }
-
+[<CLIMutable>]
 type Sample =
     { Name : string option
-      Time : System.DateTime }
+      Time : int64 }
+    member this.toTime = this.Time |> System.DateTimeOffset.FromUnixTimeSeconds

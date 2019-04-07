@@ -22,7 +22,9 @@ module Sample =
         | SampleName of string
 
     // initialModel represents the starting model of this page
-    let time = System.DateTime.Now
+    let time =
+        (System.DateTime.Now |> System.DateTimeOffset)
+            .ToUnixTimeSeconds()
 
     let initialModel =
         { Sample =
@@ -58,7 +60,7 @@ module Sample =
                          // !!jsObj ->  unbox jsObj to type a
                          // obj?prop -> Dynamically access property rop from obj
                          // this means if things go wrong we get an undefined as a string here!
-                         // or use the .Value
+                         // or use the .Value which is a tiny more type safe!
                          ev.Value |> (msg >> dispatch))
                      Input.Placeholder placeHolder ]
 
@@ -85,11 +87,12 @@ module Sample =
 
                                             div []
                                                 [ str
-                                                  <| model.Sample.Time.ToShortDateString
+                                                  <| model.Sample.toTime.ToString
                                                          ()
 
+                                                  //   .ToShortDateString()
                                                   str
-                                                  <| model.Sample.Time.ToShortTimeString
+                                                  <| model.Sample.toTime.ToString
                                                          () ] ] ] ] ] ]
 
               Card.footer []

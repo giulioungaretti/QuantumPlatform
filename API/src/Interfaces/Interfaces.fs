@@ -1,7 +1,14 @@
-module Interfaces 
+module Interfaces
 
+open System
 open System.Threading.Tasks
+open Shared
 
-type IHello = 
-    inherit Orleans.IGrainWithIntegerKey
-    abstract member SayHello : string -> Task<string>
+type SampleHolder(sample : Sample option) =
+    new() = SampleHolder None
+    member val Sample : Sample option = None with get, set
+
+type ISample =
+    inherit Orleans.IGrainWithGuidKey
+    abstract GetSample : unit -> Task<Sample option>
+    abstract SetSample : Sample -> Task

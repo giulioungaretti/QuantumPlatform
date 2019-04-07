@@ -1,11 +1,21 @@
-module Grains 
+module Grains
 
 open System.Threading.Tasks
 open Orleans
+open Orleans.Providers
+open FSharp.Control.Tasks
 open Interfaces
+open Shared
 
-type HelloGrain () =
-    inherit Grain ()
-    interface IHello with 
-        member this.SayHello (greeting : string) : Task<string> = 
-            greeting |> sprintf "You said: %s, I say: Hello!" |> Task.FromResult
+//TODO: add logging
+[<StorageProvider(ProviderName = "OrleansStorage")>]
+type SampleGrain() =
+    inherit Grain<SampleHolder>()
+    interface ISample with
+        member this.GetSample() : Task<Sample option> =
+            Task.FromResult this.State.Sample
+        member this.SetSample(sample : Sample) : Task =
+            this.State.Sample <- Some sample
+            let write = this.WriteStateAsync()
+            task { do! write } |> ignore
+            Task.CompletedTask

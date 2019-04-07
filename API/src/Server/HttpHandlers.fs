@@ -1,35 +1,38 @@
 namespace GiraffeServer
+
 open Microsoft.Extensions.Logging
 open System.Threading.Tasks
 open Shared
+open Interfaces
 
 module HttpHandlers =
-
     open Microsoft.AspNetCore.Http
     open FSharp.Control.Tasks.V2.ContextInsensitive
     open Giraffe
-    open GiraffeServer.Models
-    open Interfaces
+    open Shared
 
-    let handleGetHello =
+    let handleGetSample =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             let log = ctx.GetLogger("handleGetHello")
             task {
-                use client = ctx.GetService<Orleans.IClusterClient>()
+                // use client = ctx.GetService<Orleans.IClusterClient>()
                 log.LogInformation("got clinet")
-                let friend = client.GetGrain<IHello> 0L
-                let! response = friend.SayHello ("Good morning, my friend!")
+                // let friend = client.GetGrain<Iello> 0L
+                // let! rehandleGetHellosponse = friend.SayHello ("Good morning, my friend!")
+                // asd
                 log.Log(LogLevel.Information, "got response")
-                return! json response next ctx
-            } 
+                return! json "as" next ctx
+            }
 
-    let getInitCounter () : Task<Counter> = task { return { Value = 42 } }
-
-    let handleGetHey =
-        fun (next: HttpFunc) (ctx: HttpContext) ->
-            let log = ctx.GetLogger("handlegGetHey")
+    let handlePostSample =
+        fun (next : HttpFunc) (ctx : HttpContext) ->
+            let log = ctx.GetLogger("handleGetHello")
+            let client = ctx.GetService<Orleans.IClusterClient>()
             task {
-                let! counter = getInitCounter()
-                log.Log(LogLevel.Information, "got response")
-                return! json counter next ctx
-            } 
+                let! sample = ctx.BindModelAsync<Sample>()
+                log.LogError("{%a}", sample)
+                let sampleGrain =
+                    client.GetGrain<ISample> <| System.Guid.NewGuid()
+                do! sampleGrain.SetSample(sample)
+                return! next ctx
+            }
