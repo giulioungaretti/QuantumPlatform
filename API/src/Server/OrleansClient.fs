@@ -23,7 +23,7 @@ let buildClient (url : string) (serviceProvider : IServiceProvider) =
         parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
              .AddApplicationPart(typeof<ISample>.Assembly)
              .AddApplicationPart(typeof<SamplesGrain>.Assembly)
-             .AddApplicationPart(typeof<ISamples<SampleGrain>>.Assembly)
+             .AddApplicationPart(typeof<ISamples>.Assembly)
              .WithCodeGeneration()
         |> ignore)
         .Build()

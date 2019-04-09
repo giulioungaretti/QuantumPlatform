@@ -37,14 +37,13 @@ type SampleGrain() =
                 | _ -> 1
 
 
-
 [<StorageProvider(ProviderName = "OrleansStorage")>]
 type SamplesGrain() = 
-    inherit Grain<Register<SampleGrain>>()
-    interface ISamples<SampleGrain> with
-        member this.All(): Task<List<SampleGrain>> = 
-            this.State.set 
-            |> Set.toList
+    inherit Grain<RegisterH<IGrain>>()
+    interface ISamples with
+        member this.All()  = 
+            this.State.set
+            |> List.ofSeq
             |> Task.FromResult
 
         member this.Register sampleG =

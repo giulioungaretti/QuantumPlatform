@@ -8,4 +8,4 @@ module URL=
     let sample = "/sample"
     let samples = "/samples"
 
-    let apiURL s:string = sprintf "/api/%s" s
+    let apiURL s:string = sprintf "/api%s" s

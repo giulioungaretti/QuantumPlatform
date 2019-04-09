@@ -3,7 +3,9 @@ namespace GiraffeServer
 open Microsoft.Extensions.Logging
 open System.Threading.Tasks
 open Shared
+
 open Interfaces
+open Grains
 open Microsoft.AspNetCore.Http
 
 module HttpHandlers =
@@ -30,7 +32,7 @@ module HttpHandlers =
                     let client = ctx.GetService<Orleans.IClusterClient>()
                     let userid = 0L
                     log.LogError("got client ")
-                    let samplesGrain = client.GetGrain<ISamples<ISample>>userid
+                    let samplesGrain = client.GetGrain<ISamples>userid
                     log.LogError("got grain")
                     let! samples = samplesGrain.All()
                     log.LogError("got samples")
@@ -48,5 +50,8 @@ module HttpHandlers =
                 let sampleGrain =
                     client.GetGrain<ISample> <| System.Guid.NewGuid()
                 do! sampleGrain.SetSample(sample)
+                // let userid = 0L
+                // let samplesGrain = client.GetGrain<ISamples>userid
+                // do! samplesGrain.Register(sampleGrain)
                 return! next ctx
             }

@@ -6,6 +6,7 @@ open Shared
 open Orleans
 open System
 open System
+open Orleans
 
 
 [<Serializable>]
@@ -16,6 +17,8 @@ type SampleHolder(sample : Sample option) =
 type Register<'a when 'a:comparison> () =
     member __.set  = Set.empty<'a> 
 
+type RegisterH<'a> () =
+    member __.set  = Collections.Generic.HashSet<'a> () 
 
 // a sample is identified by a guid
 type ISample =
@@ -25,7 +28,7 @@ type ISample =
 
 
 // one could think of a container as belonging to some user_id:int
-type ISamples<'a when 'a :> IGrain> =
+type ISamples =
     inherit Orleans.IGrainWithIntegerKey
-    abstract Register : 'a -> Task<'a>
-    abstract All : unit -> Task<List<'a>>
+    abstract Register : IGrain -> Task<IGrain>
+    abstract All : unit -> Task<List<IGrain>>
