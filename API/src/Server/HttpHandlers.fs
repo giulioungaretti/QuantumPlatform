@@ -1,13 +1,11 @@
 namespace GiraffeServer
 
 open Microsoft.Extensions.Logging
-open System.Threading.Tasks
-open Shared
-
-open Orleans
-open Interfaces
-open Grains
 open Microsoft.AspNetCore.Http
+open System.Threading.Tasks
+
+open Interfaces
+open Shared
 
 module HttpHandlers =
     open FSharp.Control.Tasks.V2.ContextInsensitive
@@ -32,12 +30,9 @@ module HttpHandlers =
                 task {
                     let client = ctx.GetService<Orleans.IClusterClient>()
                     let userid = 0L
-                    log.LogError("got client ")
-                    let samplesGrain = client.GetGrain<ISamples<IGrain>>userid
-                    log.LogError("got grain")
+                    let samplesGrain = client.GetGrain<ISamples>userid
                     let! samples = samplesGrain.All()
                     log.LogError("got samples")
-                    // NOTE 
                     return! ctx.WriteJsonAsync samples
                 }
         )
@@ -47,12 +42,15 @@ module HttpHandlers =
             let client = ctx.GetService<Orleans.IClusterClient>()
             task {
                 let! sample = ctx.BindModelAsync<Sample>()
-                log.LogError("{%a}", sample)
                 let sampleGrain =
                     client.GetGrain<ISample> <| System.Guid.NewGuid()
+                // save sample
                 do! sampleGrain.SetSample(sample)
+                log.LogDebug("Sample actor {%a}: on!", sample)
+                // register sample
                 let userid = 0L
-                let samplesGrain = client.GetGrain<ISamples<IGrain>>userid
+                let samplesGrain = client.GetGrain<ISamples>userid
                 let! _ = samplesGrain.Register(sampleGrain)
+                log.LogDebug("Sample actor {%a}: registered!", sample)
                 return! next ctx
             }
