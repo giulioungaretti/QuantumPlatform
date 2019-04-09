@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="GrainState.fs" />
     <Compile Include="Grains.fs" />
   </ItemGroup>
 
@@ -13,6 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="2.3" />
     <PackageReference Include="Microsoft.Orleans.OrleansCodeGenerator" Version="2.3" />
+    <PackageReference Include="Microsoft.Orleans.EventSourcing" Version="2.3" />
     <PackageReference Include="TaskBuilder.fs" Version="2.1.*" />
   </ItemGroup>
 

@@ -32,7 +32,10 @@ module HttpHandlers =
                     let userid = 0L
                     let samplesGrain = client.GetGrain<ISamples>userid
                     let! samples = samplesGrain.All()
-                    let! samples' = Task.WhenAll  (List.map (fun (s : ISample) -> s.GetSample()) samples) 
+                    let! samples' = Task.WhenAll  (List.map 
+                                                        (fun (s : ISampleState) 
+                                                                -> s.GetSample()) 
+                                                        samples) 
                     let samples'': Samples = Seq.choose id samples'
                                               |> List.ofSeq
                     log.LogDebug("%{a}got samples", samples'')
@@ -47,9 +50,9 @@ module HttpHandlers =
             task {
                 let! sample = ctx.BindModelAsync<Sample>()
                 let sampleGrain =
-                    client.GetGrain<ISample> <| System.Guid.NewGuid()
+                    client.GetGrain<ISampleState> <| System.Guid.NewGuid()
                 // save sample
-                do! sampleGrain.SetSample(sample)
+                do! sampleGrain.NewSample(sample)
                 log.LogDebug("Sample actor {%a}: on!", sample)
                 // register sample
                 let userid = 0L

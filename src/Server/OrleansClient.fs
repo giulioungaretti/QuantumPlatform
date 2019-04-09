@@ -24,6 +24,8 @@ let buildClient (url : string) (serviceProvider : IServiceProvider) =
                                              .AddApplicationPart(typeof<ISample>.Assembly)
                                              .AddApplicationPart(typeof<SamplesGrain>.Assembly)
                                              .AddApplicationPart(typeof<ISamples>.Assembly)
+                                             .AddApplicationPart(typeof<SampleStateGrain>.Assembly)
+                                             .AddApplicationPart(typeof<ISampleState>.Assembly)
                                              .WithCodeGeneration()
                                         |> ignore)
         .Build()

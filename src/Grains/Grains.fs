@@ -3,19 +3,40 @@ module Grains
 open System.Threading.Tasks
 open Microsoft.Extensions.Logging
 
-open Orleans
-open Orleans.Providers
 open FSharp.Control.Tasks
 
+open Orleans
+open Orleans.EventSourcing
+open Orleans.Providers
+
 open Interfaces
+open GrainState
 open Shared
 
-//TODO: add logging
-
 [<StorageProvider(ProviderName = "OrleansStorage")>]
+type SampleStateGrain(log:ILogger<SampleStateGrain>) =
+    inherit JournaledGrain<SampleHolder, Event>()
+    interface ISampleState with
+        member this.GetSample(): Task<Sample option> = 
+            Task.FromResult this.State.Sample
+
+        member this.NewSample(sample: Sample): Task = 
+            this.RaiseEvent(Event.NewSample sample)
+            this.ConfirmEvents ()
+        member this.NewStep(step: Step): Task = 
+            this.RaiseEvent(Event.NewStep step)
+            this.ConfirmEvents ()
+        
+        member this.Events ()=
+            let retrieve = this.RetrieveConfirmedEvents(0, this.Version)
+            task {
+                let! retrieved =  retrieve
+                return List.ofSeq retrieved
+            }
+ 
+
 type SampleGrain(log:ILogger<SampleGrain>) =
     inherit Grain<SampleHolder>()
-    member  this.logger = log
     interface ISample with
         member this.GetSample() : Task<Sample option> =
             Task.FromResult this.State.Sample
@@ -28,7 +49,7 @@ type SampleGrain(log:ILogger<SampleGrain>) =
 
 [<StorageProvider(ProviderName = "OrleansStorage")>]
 type SamplesGrain(logger : ILogger<SamplesGrain>) = 
-    inherit Grain<Register<ISample>>()
+    inherit Grain<Register<ISampleState>>()
     member this.logger = logger
     interface ISamples with
         member this.All()  = 

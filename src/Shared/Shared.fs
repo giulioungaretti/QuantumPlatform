@@ -17,4 +17,14 @@ type Sample =
 
 
 [<CLIMutable>]
+type Step =
+    { Name : string option
+      Time : int64 }
+    member this.toTime = 
+        this.Time
+        |> System.DateTimeOffset.FromUnixTimeSeconds
+
+
+
+[<CLIMutable>]
 type Samples =  Sample list
