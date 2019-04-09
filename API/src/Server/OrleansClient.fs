@@ -15,17 +15,17 @@ open Microsoft.Extensions.Logging.Debug
 let buildClient (url : string) (serviceProvider : IServiceProvider) =
     let builder = ClientBuilder()
     builder.Configure<ClusterOptions>(fun (options : ClusterOptions) ->
-    options.ClusterId <- "orleans-dev-docker"
-    options.ServiceId <- "FsharpOrleansDev")
+                                           options.ClusterId <- "orleans-dev-docker"
+                                           options.ServiceId <- "FsharpOrleansDev")
         .UseAzureStorageClustering(fun (options : AzureStorageGatewayOptions) ->
-        options.ConnectionString <- url)
+                                         options.ConnectionString <- url)
         .ConfigureApplicationParts(fun parts ->
-        parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
-             .AddApplicationPart(typeof<ISample>.Assembly)
-             .AddApplicationPart(typeof<SamplesGrain>.Assembly)
-             .AddApplicationPart(typeof<ISamples<IGrain>>.Assembly)
-             .WithCodeGeneration()
-        |> ignore)
+                                        parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
+                                             .AddApplicationPart(typeof<ISample>.Assembly)
+                                             .AddApplicationPart(typeof<SamplesGrain>.Assembly)
+                                             .AddApplicationPart(typeof<ISamples<IGrain>>.Assembly)
+                                             .WithCodeGeneration()
+                                        |> ignore)
         .Build()
 
 let client (url : string) (serviceProvider : IServiceProvider) : IClusterClient =

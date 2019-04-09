@@ -16,19 +16,19 @@ let buildSiloHost (context : Microsoft.Extensions.Hosting.HostBuilderContext)
     let conf = context.Configuration
     let url = conf.GetSection("OrleansTableUrl").Get<Config>().OrleansTableURL
     siloBuilder.Configure<ClusterOptions>(fun (options : ClusterOptions) ->
-    options.ClusterId <- "orleans-dev-docker"
-    options.ServiceId <- "FsharpOrleansDev")
+                                               options.ClusterId <- "orleans-dev-docker"
+                                               options.ServiceId <- "FsharpOrleansDev")
         .ConfigureEndpoints(siloPort = 11111, gatewayPort = 30000)
         .AddMemoryGrainStorage("OrleansStorage")
         .UseAzureStorageClustering(fun (options : AzureStorageClusteringOptions) ->
-        options.ConnectionString <- url)
+                                            options.ConnectionString <- url)
         .ConfigureApplicationParts(fun parts ->
-        parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
-             .AddApplicationPart(typeof<ISample>.Assembly)
-             .AddApplicationPart(typeof<SamplesGrain>.Assembly)
-             .AddApplicationPart(typeof<ISamples<IGrain>>.Assembly)
-             .WithCodeGeneration()
-        |> ignore)
+                    parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
+                         .AddApplicationPart(typeof<ISample>.Assembly)
+                         .AddApplicationPart(typeof<SamplesGrain>.Assembly)
+                         .AddApplicationPart(typeof<ISamples<IGrain>>.Assembly)
+                         .WithCodeGeneration()
+                    |> ignore)
     |> ignore
 
 let configureAppConfiguration (context : Microsoft.Extensions.Hosting.HostBuilderContext)

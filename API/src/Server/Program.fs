@@ -54,9 +54,11 @@ let configureLogging (context : WebHostBuilderContext)
 let configureServices (services : IServiceCollection) =
     let conf = services.BuildServiceProvider().GetService<IConfiguration>()
     let url = conf.GetSection("OrleansTableUrl").Get<Config>().OrleansTableURL
-    (services.AddCors().AddGiraffe().AddSingleton<Giraffe.Serialization.Json.IJsonSerializer>
-         (Thoth.Json.Giraffe.ThothSerializer())).AddSingleton<IClusterClient>
-        (OrleansClient.client url) |> ignore
+    services.AddCors()
+        .AddGiraffe()
+        .AddSingleton<Giraffe.Serialization.Json.IJsonSerializer>(Thoth.Json.Giraffe.ThothSerializer())
+        .AddSingleton<IClusterClient> (OrleansClient.client url)
+        |> ignore
 
 let configureAppConfiguration (context : WebHostBuilderContext)
     (config : IConfigurationBuilder) =
