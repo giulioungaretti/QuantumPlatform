@@ -20,6 +20,7 @@
     }
   },
   "dependencies": {
+    "bulma-divider": "2.0.1",
     "source-map-support": "^0.5"
   },
   "devDependencies": {

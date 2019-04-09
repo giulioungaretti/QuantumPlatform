@@ -4,10 +4,10 @@
         <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Include="..\..\..\Shared\Shared.fs" />
         <Compile Include="Routes.fs" />
         <Compile Include="Style.fs" />
         <Compile Include="Sample.fs" />
+        <Compile Include="Samples.fs" />
         <Compile Include="Client.fs" />
         <Compile Include="Entry.fs" />
     </ItemGroup>
@@ -19,6 +19,10 @@
       <PackageReference Include="Fable.Elmish.HMR" Version="3.2.0" />
       <PackageReference Include="Fable.Elmish.React" Version="2.2.0" />
       <PackageReference Include="Fable.FontAwesome.Free" Version="1.0.0" />
+      <PackageReference Include="Fulma.Extensions.Wikiki.Divider" Version="1.0.0"/>
       <PackageReference Include="Fulma" Version="1.1.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Shared\Shared.fsproj" />
     </ItemGroup>
 </Project>

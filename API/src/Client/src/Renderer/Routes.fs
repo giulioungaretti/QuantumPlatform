@@ -11,6 +11,7 @@ type SampleRoute =
 type Route =
     | Home
     | Sample of SampleRoute
+    | Samples
 
 
 let hashPrefix = sprintf "#%s"
@@ -20,6 +21,8 @@ let home = "home"
 
 [<Literal>]
 let sample = "sample"
+[<Literal>]
+let samples = "samples"
 
 [<Literal>]
 let newSample = "new"
@@ -28,11 +31,13 @@ let combine xs = List.fold (sprintf "%s/%s") "" xs
 
 let toString route =
     match  route with
-    | Route.Home -> home |> hashPrefix
+    | Route.Home -> home 
+    | Route.Samples -> samples
     | Route.Sample subRoute ->
         match subRoute with 
             | SampleRoute.New -> combine [sample
-                                          newSample] |> hashPrefix
+                                          newSample] 
+   |> hashPrefix
 
 let subRoute =
     oneOf [
@@ -42,8 +47,9 @@ let subRoute =
 let route : Parser<Route->Route,Route> =
     oneOf [
         map Route.Home (s "/")
-        map Route.Home (s "home")
-        map Route.Sample (s "sample" </> subRoute)
+        map Route.Home (s home)
+        map Route.Samples (s samples)
+        map Route.Sample (s sample </> subRoute)
     ]
 
 let href =

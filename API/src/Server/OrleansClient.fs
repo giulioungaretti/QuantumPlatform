@@ -21,7 +21,10 @@ let buildClient (url : string) (serviceProvider : IServiceProvider) =
         options.ConnectionString <- url)
         .ConfigureApplicationParts(fun parts ->
         parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
-             .AddApplicationPart(typeof<ISample>.Assembly).WithCodeGeneration()
+             .AddApplicationPart(typeof<ISample>.Assembly)
+             .AddApplicationPart(typeof<SamplesGrain>.Assembly)
+             .AddApplicationPart(typeof<ISamples<SampleGrain>>.Assembly)
+             .WithCodeGeneration()
         |> ignore)
         .Build()
 

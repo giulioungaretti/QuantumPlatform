@@ -12,12 +12,14 @@ open Giraffe
 open GiraffeServer.HttpHandlers
 open Orleans
 open Config
+open URL
 
 let webApp =
-    choose [ subRoute "/api"
+    choose [ subRoute URL.api
                  (choose
-                      [ GET >=> choose [ route "/sample" >=> handleGetSample ]
-                        POST >=> choose [ route "/sample" >=> handlePostSample ] ])
+                      [ GET >=> choose [ route URL.sample >=> handleGetSample
+                                         route URL.samples >=> handleGetSamples ]
+                        POST >=> choose [ route URL.sample >=> handlePostSample ] ])
              setStatusCode 404 >=> text "Not Found giraffe" ]
 
 // ---------------------------------

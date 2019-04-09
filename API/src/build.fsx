@@ -16,6 +16,7 @@ open Fake.Core
 open Fake.DotNet
 open Fake.IO
 
+let siloPath = Path.getFullName "./Silo.Host"
 let serverPath = Path.getFullName "./Server"
 let clientPath = Path.getFullName "./Client"
 let clientPathMain = Path.combine clientPath "src/Main"
@@ -123,6 +124,14 @@ Target.create "Server" ( fun _ ->
     |> ignore
 )
 
+Target.create "Silo" (fun _ ->
+    async {
+        return runDotNet "watch run" siloPath
+    }
+    |> Async.RunSynchronously
+    |> ignore
+)
+
 Target.create "ClientWeb" (fun _ ->
     let client = async {
         return runTool yarnTool "webpack-dev-server" clientPathWeb
@@ -164,7 +173,8 @@ Target.create "Run" (fun _ ->
     let safeClientOnly = Environment.hasEnvironVar "safeClientOnly"
 
     let tasks =
-        [ if not safeClientOnly then yield server
+        [
+          if not safeClientOnly then yield server
           yield client
           if not vsCodeSession then yield browser ]
 

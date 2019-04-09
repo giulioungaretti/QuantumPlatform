@@ -24,7 +24,10 @@ let buildSiloHost (context : Microsoft.Extensions.Hosting.HostBuilderContext)
         options.ConnectionString <- url)
         .ConfigureApplicationParts(fun parts ->
         parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
-             .AddApplicationPart(typeof<ISample>.Assembly).WithCodeGeneration()
+             .AddApplicationPart(typeof<ISample>.Assembly)
+             .AddApplicationPart(typeof<SamplesGrain>.Assembly)
+             .AddApplicationPart(typeof<ISamples<SampleGrain>>.Assembly)
+             .WithCodeGeneration()
         |> ignore)
     |> ignore
 
@@ -41,6 +44,10 @@ let configureAppConfiguration (context : Microsoft.Extensions.Hosting.HostBuilde
      | true -> config.AddUserSecrets<Config>() |> ignore
      | false -> ())
 
+let configureLogging (context : Microsoft.Extensions.Hosting.HostBuilderContext) (builder : ILoggingBuilder) =
+    let conf = context.Configuration.GetSection("Logging")
+    builder.AddConfiguration(conf).AddConsole() |> ignore
+
 let configureHostConfiguration (configHost : IConfigurationBuilder) =
     configHost.SetBasePath(Directory.GetCurrentDirectory())
               .AddJsonFile("hostsettings.json").AddEnvironmentVariables()
@@ -50,9 +57,9 @@ let configureHostConfiguration (configHost : IConfigurationBuilder) =
 let main _ =
     HostBuilder()
         .ConfigureHostConfiguration(fun c -> (configureHostConfiguration c))
-        .UseOrleans(buildSiloHost)
         .ConfigureAppConfiguration(configureAppConfiguration)
-        .ConfigureLogging(fun logging -> logging.AddConsole() |> ignore)
+        .ConfigureLogging(configureLogging)
+        .UseOrleans(buildSiloHost)
         .Build()
         .Run()
     0
