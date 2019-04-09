@@ -1,0 +1,12 @@
+
+###
+
+POST https://localhost:5003/api/sample HTTP/1.1
+content-type: application/json
+
+{
+    "Name": "sample",
+    "Time":  1554676799,
+}
+###
+GET https://localhost:5003/api/samples HTTP/1.1
