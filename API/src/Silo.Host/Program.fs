@@ -26,7 +26,7 @@ let buildSiloHost (context : Microsoft.Extensions.Hosting.HostBuilderContext)
         parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
              .AddApplicationPart(typeof<ISample>.Assembly)
              .AddApplicationPart(typeof<SamplesGrain>.Assembly)
-             .AddApplicationPart(typeof<ISamples>.Assembly)
+             .AddApplicationPart(typeof<ISamples<IGrain>>.Assembly)
              .WithCodeGeneration()
         |> ignore)
     |> ignore

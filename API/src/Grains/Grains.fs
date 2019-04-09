@@ -40,7 +40,7 @@ type SampleGrain() =
 [<StorageProvider(ProviderName = "OrleansStorage")>]
 type SamplesGrain() = 
     inherit Grain<RegisterH<IGrain>>()
-    interface ISamples with
+    interface ISamples<IGrain> with
         member this.All()  = 
             this.State.set
             |> List.ofSeq
