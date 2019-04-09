@@ -1,4 +1,11 @@
 namespace Shared
+// By adding this condition, you can share your code between your client and server
+#if FABLE_COMPILER
+open Thoth.Json
+#else
+open Thoth.Json.Net
+#endif
+
 
 [<CLIMutable>]
 type Sample =
@@ -10,4 +17,4 @@ type Sample =
 
 
 [<CLIMutable>]
-type Samples =  string list
+type Samples =  Sample list

@@ -39,6 +39,25 @@ module Samples =
     let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         match model, msg with
         | _ -> model, Cmd.none
+
+
+    let sampleRow (sample:Sample) =  
+        tr [][
+            td [][str <| Option.defaultValue "Untitled" sample.Name]
+            td [][str <| sample.toTime.ToString ()]
+        ]
+    let viewSamples (samples: Samples)  =
+        Table.table [ Table.IsBordered
+                      Table.IsFullWidth
+                      Table.IsStriped ]
+            [ thead [ ]
+                [ tr [ ]
+                     [ th [ ] [ str "Sample name" ]
+                       th [ ] [ str "Created on" ] ] ]
+              tbody [ ] (List.map sampleRow samples)
+            ]
+
+
     let view (model : Model) (dispatch : Msg -> unit) =
         Card.card []
             [ Card.header []
@@ -46,11 +65,6 @@ module Samples =
                         [ str "samples"
                           ] ]
 
-              Card.content []
-                  (List.map str model.Samples)
+              Card.content [] [viewSamples model.Samples]
 
-              Card.footer []
-                  [ Card.Footer.a [] [ str "Save" ]
-
-                    Card.Footer.a [ GenericOption.Props [ href Route.Home ] ]
-                        [ str "Discard" ] ] ]
+           ]

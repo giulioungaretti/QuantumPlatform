@@ -3,13 +3,13 @@ namespace Client
 open Elmish
 open Elmish.Browser.Navigation
 open Fable.Helpers.React
+
 open Fulma
+open Fulma.Extensions.Wikiki
 
 open Sample
 open Samples
 open Shared
-
-open Routes
 open Routes
 // MODEL
 module app =
@@ -81,10 +81,8 @@ module app =
         let page = 
               match model.loading with 
               |true ->
-                Section.section [] [ str "loading" ] 
-                // PageLoader.pageLoader [ PageLoader.Color IsSuccess
-                //                             PageLoader.IsActive true ]
-                        // [ ]
+                PageLoader.pageLoader [ PageLoader.Color IsWhite
+                                        PageLoader.IsActive true ] []
               |false ->
                 Section.section [] [ viewPage model.currentPage.Page dispatch ] 
 

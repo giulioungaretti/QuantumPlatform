@@ -26,19 +26,23 @@ module HttpHandlers =
     let handleGetSamples: HttpFunc -> HttpContext -> Task<HttpContext option>  =
         handleContext (
             fun (ctx:HttpContext) ->
-                let log = ctx.GetLogger("handleGetSample started")
+                let log = ctx.GetLogger("handleGetSamples")
                 task {
                     let client = ctx.GetService<Orleans.IClusterClient>()
                     let userid = 0L
                     let samplesGrain = client.GetGrain<ISamples>userid
                     let! samples = samplesGrain.All()
-                    log.LogError("got samples")
-                    return! ctx.WriteJsonAsync samples
+                    let! samples' = Task.WhenAll  (List.map (fun (s : ISample) -> s.GetSample()) samples) 
+                    let samples'': Samples = Seq.choose id samples'
+                                              |> List.ofSeq
+                    log.LogDebug("%{a}got samples", samples'')
+                    do! Task.Delay(1000)
+                    return! ctx.WriteJsonAsync samples''
                 }
         )
     let handlePostSample =
         fun (next : HttpFunc) (ctx : HttpContext) ->
-            let log = ctx.GetLogger("handleGetHello")
+            let log = ctx.GetLogger("handlePostSample")
             let client = ctx.GetService<Orleans.IClusterClient>()
             task {
                 let! sample = ctx.BindModelAsync<Sample>()
