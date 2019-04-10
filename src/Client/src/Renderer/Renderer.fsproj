@@ -4,6 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="Errors.fs" />
         <Compile Include="Routes.fs" />
         <Compile Include="Style.fs" />
         <Compile Include="Sample.fs" />

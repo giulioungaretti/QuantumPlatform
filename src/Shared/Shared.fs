@@ -10,6 +10,7 @@ open Thoth.Json.Net
 [<CLIMutable>]
 type Sample =
     { Name : string option
+      GUID : System.Guid
       Time : int64 }
     member this.toTime = 
         this.Time
@@ -19,6 +20,7 @@ type Sample =
 [<CLIMutable>]
 type Step =
     { Name : string option
+      GUID : System.Guid
       Time : int64 }
     member this.toTime = 
         this.Time

@@ -16,14 +16,16 @@ open Fulma
 [<RequireQualifiedAccessAttribute>]
 module Samples =
     type Model =
-        { Samples : Samples }
+        { Samples : Samples 
+        }
 
     type Msg =
         | NoOp
 
     // defines the initial state and initial command (= side-effect) of the application
     let initModel samples =
-        { Samples = samples }
+        { Samples = samples 
+        }
 
     let init(msg: Result<Samples, System.Exception> -> 'msg) :  Cmd<'msg> =
         let samplesFetch = fetchAs<Samples>  (apiURL samples) (Decode.Auto.generateDecoder())

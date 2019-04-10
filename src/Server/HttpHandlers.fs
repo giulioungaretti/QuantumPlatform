@@ -50,7 +50,7 @@ module HttpHandlers =
             task {
                 let! sample = ctx.BindModelAsync<Sample>()
                 let sampleGrain =
-                    client.GetGrain<ISampleState> <| System.Guid.NewGuid()
+                    client.GetGrain<ISampleState> <| sample.GUID 
                 // save sample
                 do! sampleGrain.NewSample(sample)
                 log.LogDebug("Sample actor {%a}: on!", sample)

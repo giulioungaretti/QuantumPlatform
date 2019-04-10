@@ -9,6 +9,7 @@ open Fulma.Extensions.Wikiki
 
 open Sample
 open Samples
+open Errors
 open Shared
 open Routes
 // MODEL
@@ -31,6 +32,7 @@ module app =
         | SamplesMsg of Samples.Msg
         | SetRoute of Route option
         | LoadedSamples of Result<Samples, exn>
+        | ClearError
 
     type Model =
         { currentPage : CurrentPage 
@@ -88,7 +90,7 @@ module app =
 
         Container.container []
             [ navbar
-              page
+              Errors.wrap model.error page ClearError dispatch
               ]
 
     // UPDATE
@@ -108,7 +110,10 @@ module app =
                 let model' = Samples.initModel samples'
                 {model with currentPage = Loaded  <| Samples model'}, Cmd.none
             | Error error ->
-                {model with error = Some <| error.ToString () }, Cmd.none
+                {model with error = Some <| error.ToString ()
+                            currentPage= Loaded Home }, Cmd.none
+        | (ClearError, _ ) ->
+            {model with error = None}, Cmd.none
         // wrong message to wrong page
         | (_, _) -> 
             Fable.Import.Browser.console.log "Got message for wrong page!" 
