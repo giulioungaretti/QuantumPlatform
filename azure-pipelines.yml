@@ -23,3 +23,8 @@ steps:
     fake build -t BuildElectron
   workingDirectory: ./src
   displayName: 'electron'
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'apps'
+    targetPath: 'src/Client/dist/'
