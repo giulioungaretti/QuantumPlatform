@@ -107,7 +107,6 @@ Target.create "InstallClientElectron" (fun _ ->
 )
 
 Target.create "BuildWeb" (fun _ ->
-    runDotNet "build" serverPath
     runTool yarnTool "webpack-cli -p" clientPathWeb
 )
 
@@ -219,9 +218,7 @@ open Fake.Core.TargetOperators
     ==> "InstallClient"
     ==> "BuildWeb"
 
-
 "Clean"
-    ==> "HardClean"
     ==> "InstallClientElectron"
     ==> "BuildElectron"
 
