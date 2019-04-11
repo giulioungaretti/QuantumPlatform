@@ -14,16 +14,18 @@ variables:
   imageName2: 'qsilo:$(build.buildId)'
 
 steps:
-- script: docker build -f ./src/Server/Dockerfile -t $(imageName1) .
+- script: docker build -f ./Server/Dockerfile -t $(imageName1) .
   displayName: 'Server: docker build'
+  workingDirectory: ./src
 
-- script: docker build -f ./src/Silo.Host/Dockerfile -t $(imageName2) .
+- script: docker build -f ./Silo.Host/Dockerfile -t $(imageName2) .
   displayName: 'Silo docker build'
+  workingDirectory: ./src
 
 - script: |
     export DOTNET_ROOT=$HOME/.dotnet/
     export PATH=$PATH:$HOME/.dotnet/tools
     dotnet tool install fake-cli -g
     fake build -t BuildElectron
-
+  workingDirectory: ./src
   displayName: 'electron'
