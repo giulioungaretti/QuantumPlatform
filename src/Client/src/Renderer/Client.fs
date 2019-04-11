@@ -61,7 +61,7 @@ module app =
                         {model with error = Some <| exn.ToString () } , Cmd.none
 
             | SampleRoute.New ->
-                { model with currentPage = Loaded <| NewSample Sample.New.initialModel }, Cmd.none
+                { model with currentPage = Loaded <| NewSample (Sample.New.initialModel()) }, Cmd.none
         | Some Route.Samples -> 
             let cmd = Samples.init LoadedSamples 
             { model with currentPage = TransitioningFrom model.currentPage.Page }, cmd

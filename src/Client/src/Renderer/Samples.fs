@@ -1,12 +1,13 @@
 namespace Samples
 
 open Elmish
-open Elmish.React
+open Elmish.Browser.Navigation
 open Fable.Helpers.React
 open Fable.Helpers.React.Props
-open Fable.Core.JsInterop
 open Fable.PowerPack.Fetch
 open Thoth.Json
+
+
 open Routes
 open Shared
 open URL.URL
@@ -21,6 +22,7 @@ module Samples =
 
     type Msg =
         | NoOp
+        | SelectSample of Sample
 
     // defines the initial state and initial command (= side-effect) of the application
     let initModel samples =
@@ -39,24 +41,35 @@ module Samples =
     // It can also run side-effects (encoded as commands) like calling the server via Http.
     // these commands in turn, can dispatch messages to which the update function will react.
     let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
-        match model, msg with
+        match msg with
+        | SelectSample sample' ->
+            let s =
+                sample'.GUID.ToString ()
+                |> SampleRoute.Sample
+                |> Route.Sample
+                |> Routes.toString
+
+            model, Navigation.newUrl s
         | _ -> model, Cmd.none
 
 
-    let sampleRow (sample:Sample) =  
-        tr [][
+    let sampleRow dispatch msg (sample:Sample) =  
+        tr [ 
+            OnClick (fun _ -> dispatch <| msg sample )
+            href ( Route.Sample <| SampleRoute.Sample (sample.GUID.ToString ()))][
             td [][str <| Option.defaultValue "Untitled" sample.Name]
             td [][str <| sample.toTime.ToString ()]
         ]
-    let viewSamples (samples: Samples)  =
+    let viewSamples (samples: Samples) dispatch msg =
         Table.table [ Table.IsBordered
                       Table.IsFullWidth
+                      Table.IsHoverable
                       Table.IsStriped ]
             [ thead [ ]
                 [ tr [ ]
                      [ th [ ] [ str "Sample name" ]
                        th [ ] [ str "Created on" ] ] ]
-              tbody [ ] (List.map sampleRow samples)
+              tbody [ ] (List.map ( sampleRow dispatch msg ) samples ) 
             ]
 
 
@@ -67,6 +80,6 @@ module Samples =
                         [ str "samples"
                           ] ]
 
-              Card.content [] [viewSamples model.Samples]
+              Card.content [] [viewSamples model.Samples dispatch SelectSample ]  
 
            ]

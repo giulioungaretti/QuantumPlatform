@@ -39,7 +39,7 @@ let toString route =
             | SampleRoute.New -> combine [sample
                                           newSample] 
             | SampleRoute.Sample sampleGuid -> combine [sample
-                                                        sampleGuid.ToString ()] 
+                                                        sampleGuid] 
    |> hashPrefix
 
 
