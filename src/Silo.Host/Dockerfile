@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.2-sdk AS base
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
 
 WORKDIR /src
 COPY *.sln ./
@@ -16,7 +16,7 @@ WORKDIR /src/Silo.Host
 RUN dotnet build -c Release -o /app
 RUN dotnet publish -c Release -o /app
 
-FROM microsoft/dotnet:2:2-aspnetcore-runtime as final
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS runtime
 WORKDIR /app
-COPY --from=base /app .
+COPY --from=build /app .
 ENTRYPOINT ["dotnet", "SiloHost.dll"]

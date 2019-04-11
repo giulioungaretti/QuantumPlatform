@@ -1,4 +1,5 @@
-FROM microsoft/dotnet:2.2-sdk AS base
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build
+
 
 WORKDIR /src
 COPY *.sln ./
@@ -11,11 +12,12 @@ COPY Client/src/Renderer/Renderer.fsproj Client/src/Renderer/
 COPY Shared/Shared.fsproj Shared/
 RUN dotnet restore
 COPY . .
+
 WORKDIR /src/Server/
 RUN dotnet build -c Release -o /app
 RUN dotnet publish -c Release -o /app
 
-FROM microsoft/dotnet:2:2-aspnetcore-runtime as final
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS runtime
 WORKDIR /app
-COPY --from=base /app .
+COPY --from=build /app .
 ENTRYPOINT ["dotnet", "Server.dll"]
