@@ -7,6 +7,16 @@ function resolve(filePath) {
   return path.isAbsolute(filePath) ? filePath : path.join(__dirname, filePath);
 }
 
+var isProduction = !process.argv.find(
+  v => v.indexOf("webpack-dev-server") !== -1
+);
+
+console.log(
+  "Bundling electron renderer for " +
+    (isProduction ? "production" : "development") +
+    "..."
+);
+
 module.exports = {
   entry: [
     resolve("src/Renderer/Renderer.fsproj"),
@@ -35,6 +45,16 @@ module.exports = {
       {
         test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)(\?.*)?$/,
         use: ["file-loader"]
+      },
+      {
+        test: /\.(sass|scss|css)$/,
+        use: [
+          "css-loader",
+          {
+            loader: "sass-loader",
+            options: { implementation: require("sass") }
+          }
+        ]
       }
     ]
   }
