@@ -10,8 +10,8 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 variables:
-  imageName1: 'QServer:$(build.buildId)'
-  imageName2: 'QServer:$(build.buildId)'
+  imageName1: 'qserver:$(build.buildId)'
+  imageName2: 'qsilo:$(build.buildId)'
 
 steps:
 - script: docker build -f ./src/Server/Dockerfile -t $(imageName1) .
