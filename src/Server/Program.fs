@@ -14,10 +14,13 @@ open Orleans
 open Config
 open URL
 
+
+let asd = @"/bar/%O"
 let webApp =
     choose [ subRoute URL.api
                  (choose
-                      [ GET >=> choose [ route URL.sample >=> handleGetSample
+                      [ GET >=> choose [ 
+                                         routef URL.getSample handleGetSample
                                          route URL.samples >=> handleGetSamples ]
                         POST >=> choose [ route URL.sample >=> handlePostSample ] ])
              setStatusCode 404 >=> text "Not Found giraffe" ]

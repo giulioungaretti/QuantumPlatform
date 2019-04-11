@@ -22,6 +22,15 @@
       "problemMatcher": ["$msCompile"]
     },
     {
+      "label": "Watch Silo.Host",
+      "command": "dotnet",
+      "args": ["watch", "run"],
+      "type": "shell",
+      "options": { "cwd": "${workspaceFolder}/Silo.Host" },
+      "group": "build",
+      "problemMatcher": ["$msCompile"]
+    },
+    {
       "label": "Watch Client and Server",
       "command": "fake",
       "args": ["build", "-t", "Run"],

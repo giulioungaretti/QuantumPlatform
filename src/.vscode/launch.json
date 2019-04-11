@@ -20,10 +20,10 @@
       "request": "launch",
       "preLaunchTask": "Watch Client",
       "url": "http://localhost:8080",
-      "webRoot": "${workspaceFolder}/Client",
+      "webRoot": "${workspaceFolder}/Client/src/Renderer",
       "sourceMaps": true,
       "sourceMapPathOverrides": {
-        "webpack:///*": "${workspaceFolder}/*"
+        "webpack:///*": "${workspaceFolder}/Client/src/*"
       }
     },
     {

@@ -5,7 +5,8 @@ POST https://localhost:5003/api/sample HTTP/1.1
 content-type: application/json
 
 {
-    "Name": "sample",
+    "GUID" : "eefa2623-1b30-4e2d-877c-7a907e941213",
+    "Name": "samplea",
     "Time":  1554676799,
 }
 ###

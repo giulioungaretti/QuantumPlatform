@@ -7,7 +7,8 @@
         <Compile Include="Errors.fs" />
         <Compile Include="Routes.fs" />
         <Compile Include="Style.fs" />
-        <Compile Include="Sample.fs" />
+        <Compile Include="Sample/Sample.fs" />
+        <Compile Include="Sample/New.fs" />
         <Compile Include="Samples.fs" />
         <Compile Include="Client.fs" />
         <Compile Include="Entry.fs" />

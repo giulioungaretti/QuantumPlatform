@@ -7,9 +7,7 @@ open Fable.Helpers.React
 open Fulma
 open Fulma.Extensions.Wikiki
 
-open Sample
 open Samples
-open Errors
 open Shared
 open Routes
 // MODEL
@@ -17,7 +15,8 @@ module app =
 
     type Page =
         | Home
-        | NewSample of Sample.Model
+        | NewSample of Sample.New.Model
+        | Sample of  Sample.Model
         | Samples of Samples.Model
 
     type CurrentPage = 
@@ -28,10 +27,12 @@ module app =
                            | Loaded p ->p
 
     type Msg =
+        | NewSampleMsg of Sample.New.Msg
         | SampleMsg of Sample.Msg
         | SamplesMsg of Samples.Msg
         | SetRoute of Route option
         | LoadedSamples of Result<Samples, exn>
+        | LoadedSample of Result<Sample,exn>
         | ClearError
 
     type Model =
@@ -47,8 +48,20 @@ module app =
         match result with
         | None -> model, Navigation.modifyUrl "#" // redirecto home
         | Some Route.Home -> { model with currentPage = Loaded Home }, Cmd.none
-        | Some(Route.Sample _) ->
-            { model with currentPage = Loaded <| NewSample Sample.initialModel }, Cmd.none
+        | Some(Route.Sample subRoute) ->
+            match subRoute with
+            | SampleRoute.Sample guid -> 
+                try
+                   let guid' =  System.Guid.Parse guid
+                   let cmd = Sample.init ( guid') LoadedSample
+                   { model with currentPage = TransitioningFrom
+                                                    model.currentPage.Page }, cmd 
+                with
+                    | exn  -> 
+                        {model with error = Some <| exn.ToString () } , Cmd.none
+
+            | SampleRoute.New ->
+                { model with currentPage = Loaded <| NewSample Sample.New.initialModel }, Cmd.none
         | Some Route.Samples -> 
             let cmd = Samples.init LoadedSamples 
             { model with currentPage = TransitioningFrom model.currentPage.Page }, cmd
@@ -63,7 +76,8 @@ module app =
         match page with
         | Home -> str "Home page"
         | Samples model-> Samples.view model (SamplesMsg >> dispatch)
-        | NewSample model -> Sample.view model (SampleMsg >> dispatch)
+        | Sample model -> Sample.view model (SampleMsg >> dispatch)
+        | NewSample model -> Sample.New.view model (NewSampleMsg >> dispatch)
 
     let view (model : Model) (dispatch : Msg -> unit) =
         let navbar = 
@@ -97,10 +111,13 @@ module app =
     let update (msg : Msg) (model : Model) =
         match (msg, model.currentPage.Page) with
         | (SetRoute route, _) -> 
-            setRoute route model
-        | (SampleMsg msg', NewSample model') ->
+            setRoute route {model with error = None}
+        | (SampleMsg msg', Sample model') ->
             let model', cmd = Sample.update msg' model'
-            { model with currentPage = Loaded <| NewSample model' }, Cmd.map SampleMsg cmd
+            { model with currentPage = Loaded <| Sample model' }, Cmd.map SampleMsg cmd
+        | (NewSampleMsg msg', NewSample model') ->
+            let model', cmd = Sample.New.update msg' model'
+            { model with currentPage = Loaded <| NewSample model' }, Cmd.map NewSampleMsg cmd
         | (SamplesMsg msg', Samples model') ->
             let model', cmd = Samples.update msg' model'
             { model with currentPage = Loaded <| Samples model' }, Cmd.map SamplesMsg cmd
@@ -112,9 +129,18 @@ module app =
             | Error error ->
                 {model with error = Some <| error.ToString ()
                             currentPage= Loaded Home }, Cmd.none
+        | (LoadedSample result, _) ->
+            match result with
+            | Ok sample' ->
+                let model' = Sample.initialModel sample'
+                {model with currentPage = Loaded <| Sample model'} , Cmd.none
+            | Error error ->
+                {model with error = Some <| error.ToString ()
+                            currentPage = Loaded Home
+                }, Cmd.none
         | (ClearError, _ ) ->
             {model with error = None}, Cmd.none
         // wrong message to wrong page
         | (_, _) -> 
-            Fable.Import.Browser.console.log "Got message for wrong page!" 
+            Fable.Import.Browser.console.error "Got message for wrong page!" 
             model, Cmd.none

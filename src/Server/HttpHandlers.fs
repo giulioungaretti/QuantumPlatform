@@ -11,18 +11,25 @@ module HttpHandlers =
     open FSharp.Control.Tasks.V2.ContextInsensitive
     open Giraffe
 
-    let handleGetSample =
+    let handleGetSample (guid)=
         fun (next : HttpFunc) (ctx : HttpContext) ->
             let log = ctx.GetLogger("handleGetHello")
             task {
-                // use client = ctx.GetService<Orleans.IClusterClient>()
+                let client = ctx.GetService<Orleans.IClusterClient>()
                 log.LogInformation("got clinet")
-                // let friend = client.GetGrain<Iello> 0L
-                // let! rehandleGetHellosponse = friend.SayHello ("Good morning, my friend!")
-                // asd
-                log.Log(LogLevel.Information, "got response")
-                return! json "as" next ctx
+                // NOTE: create the grain anyway even tho it could be waste of space
+                // the post with the same guid will reuse this grain
+                let samplet = (client.GetGrain<ISampleState> guid)
+                let! sample = samplet.GetSample()
+                // then just 404 if the grain did not contain an existing sample!
+                match sample with
+                | Some sample' ->
+                    return! json sample' next ctx
+                | None ->
+                    ctx.SetStatusCode 404
+                    return! ctx.WriteTextAsync "Could not find sample"
             }
+
     let handleGetSamples: HttpFunc -> HttpContext -> Task<HttpContext option>  =
         handleContext (
             fun (ctx:HttpContext) ->
@@ -39,15 +46,14 @@ module HttpHandlers =
                     let samples'': Samples = Seq.choose id samples'
                                               |> List.ofSeq
                     log.LogDebug("%{a}got samples", samples'')
-                    do! Task.Delay(1000)
                     return! ctx.WriteJsonAsync samples''
                 }
         )
     let handlePostSample: HttpHandler =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             let log = ctx.GetLogger("handlePostSample")
-            let client = ctx.GetService<Orleans.IClusterClient>()
             task {
+                let client = ctx.GetService<Orleans.IClusterClient>()
                 let! sample = ctx.BindModelAsync<Sample>()
                 let sampleGrain =
                     client.GetGrain<ISampleState> <| sample.GUID 

@@ -1,11 +1,12 @@
 module Routes
 
-open Elmish.Browser.UrlParser
 open Fable.Import.Browser
+open Elmish.Browser.UrlParser
 
 [<RequireQualifiedAccess>]
 type SampleRoute =
     | New
+    | Sample of string
 
 [<RequireQualifiedAccess>]
 type Route =
@@ -37,11 +38,15 @@ let toString route =
         match subRoute with 
             | SampleRoute.New -> combine [sample
                                           newSample] 
+            | SampleRoute.Sample sampleGuid -> combine [sample
+                                                        sampleGuid.ToString ()] 
    |> hashPrefix
+
 
 let subRoute =
     oneOf [
         map SampleRoute.New (s "new")
+        map (SampleRoute.Sample) (str)
     ]
 
 let route : Parser<Route->Route,Route> =
