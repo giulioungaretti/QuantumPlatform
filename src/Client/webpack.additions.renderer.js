@@ -31,6 +31,10 @@ module.exports = {
       { from: resolve("./src/Renderer/public"), to: "./src/Renderer/public" }
     ])
   ],
+  resolve: {
+    // See https://github.com/fable-compiler/Fable/issues/1490
+    symlinks: false
+  },
   output: {
     filename: "renderer.js"
   },
