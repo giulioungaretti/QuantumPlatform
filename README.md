@@ -1,4 +1,4 @@
-# Quantum Platform
+# Quantum Platform [![Build Status](https://dev.azure.com/giulioungaretti/Qp/_apis/build/status/giulioungaretti.QuantumPlatform?branchName=master)](https://dev.azure.com/giulioungaretti/Qp/_build/latest?definitionId=1&branchName=master)
 
 This is an exercise in building an end to end solution for experimental physics work.
 
@@ -25,6 +25,7 @@ The architecture of the app follows the MVU pattern pioneered by elm and impleme
 
 - The app is not configured to be smart about the API location
 - The app bundle size is not optimzied
+- Fable has problems compiling in CI (maybe a linux node/linux issue?)
 
 ### Server
 
