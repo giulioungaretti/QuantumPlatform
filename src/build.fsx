@@ -23,8 +23,8 @@ let clientPathMain = Path.combine clientPath "src/Main"
 let clientPathWeb = Path.combine clientPath "src/Renderer"
 let clientDeployPathWeb = Path.combine clientPathWeb "deploy"
 let clientDeployPathElectron = Path.combine clientPath "dist"
-let fableCache p = Path.combine p "/.fable" 
-let nodeModules p = Path.combine p "/node_modules"
+let fableCache p = Path.combine p ".fable" 
+let nodeModules p = Path.combine p "node_modules"
 let deployDir = Path.getFullName "./deploy"
 
 let platformTool tool winTool =
@@ -101,7 +101,7 @@ Target.create "InstallClientElectron" (fun _ ->
     runTool nodeTool "--version" clientPath 
     printfn "Yarn version:"
     runTool yarnTool "--version" clientPath 
-    runTool yarnTool "install --frozen-lockfile" clientPath 
+    runTool yarnTool "install --frozen-lockfile" clientPath
     runDotNet "restore" clientPathMain
     runDotNet "restore" clientPathWeb
 )
@@ -113,7 +113,7 @@ Target.create "BuildWeb" (fun _ ->
 
 Target.create "BuildElectron" (fun _ ->
     runDotNet "build" serverPath
-    runTool yarnTool "dist" clientPathWeb
+    runTool yarnTool "dist" clientPath
 )
 
 Target.create "Server" ( fun _ ->
