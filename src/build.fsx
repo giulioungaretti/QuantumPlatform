@@ -112,7 +112,6 @@ Target.create "BuildWeb" (fun _ ->
 )
 
 Target.create "BuildElectron" (fun _ ->
-    runDotNet "build" serverPath
     runTool yarnTool "dist" clientPath
 )
 
