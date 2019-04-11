@@ -1,6 +1,8 @@
 module Entry
 
 open Elmish
+open Elmish.React
+open Elmish.Browser.Navigation
 open Elmish.Browser.UrlParser
 open Client.app
 #if DEBUG
