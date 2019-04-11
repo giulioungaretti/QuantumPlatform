@@ -30,3 +30,8 @@ type Step =
 
 [<CLIMutable>]
 type Samples =  Sample list
+
+[<RequireQualifiedAccessAttribute>]
+module Error =
+    [<Literal>]
+    let  SampleExists = "SampleExists"

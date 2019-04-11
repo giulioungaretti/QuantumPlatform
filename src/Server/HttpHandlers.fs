@@ -43,7 +43,7 @@ module HttpHandlers =
                     return! ctx.WriteJsonAsync samples''
                 }
         )
-    let handlePostSample =
+    let handlePostSample: HttpHandler =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             let log = ctx.GetLogger("handlePostSample")
             let client = ctx.GetService<Orleans.IClusterClient>()
@@ -52,12 +52,17 @@ module HttpHandlers =
                 let sampleGrain =
                     client.GetGrain<ISampleState> <| sample.GUID 
                 // save sample
-                do! sampleGrain.NewSample(sample)
-                log.LogDebug("Sample actor {%a}: on!", sample)
-                // register sample
-                let userid = 0L
-                let samplesGrain = client.GetGrain<ISamples>userid
-                let! _ = samplesGrain.Register(sampleGrain)
-                log.LogDebug("Sample actor {%a}: registered!", sample)
-                return! next ctx
+                try
+                    do! sampleGrain.NewSample(sample)
+                    log.LogDebug("Sample actor {%a}: on!", sample)
+                    // register sample
+                    let userid = 0L
+                    let samplesGrain = client.GetGrain<ISamples>userid
+                    let! _ = samplesGrain.Register(sampleGrain)
+                    log.LogDebug("Sample actor {%a}: registered!", sample)
+                    return! next ctx
+                with
+                    | Failure (Error.SampleExists) ->
+                        ctx.SetStatusCode 400
+                        return! ctx.WriteTextAsync Error.SampleExists
             }

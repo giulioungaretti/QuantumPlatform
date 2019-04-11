@@ -21,8 +21,12 @@ type SampleStateGrain(log:ILogger<SampleStateGrain>) =
             Task.FromResult this.State.Sample
 
         member this.NewSample(sample: Sample): Task = 
-            this.RaiseEvent(Event.NewSample sample)
-            this.ConfirmEvents ()
+            match this.State.Sample with
+            | Some _x ->
+                failwith Error.SampleExists
+            | None ->
+                this.RaiseEvent(Event.NewSample sample)
+                this.ConfirmEvents ()
         member this.NewStep(step: Step): Task = 
             this.RaiseEvent(Event.NewStep step)
             this.ConfirmEvents ()
