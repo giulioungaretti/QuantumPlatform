@@ -49,6 +49,7 @@ module HttpHandlers =
                     return! ctx.WriteJsonAsync samples''
                 }
         )
+
     let handlePostSample: HttpHandler =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             let log = ctx.GetLogger("handlePostSample")
@@ -58,7 +59,7 @@ module HttpHandlers =
                     let! sample = ctx.BindModelAsync<Sample>()
                     let sampleGrain =
                         client.GetGrain<ISampleState> <| sample.GUID 
-                    asdr// save sample
+                    // save sample
                     do! sampleGrain.NewSample(sample)
                     log.LogDebug("Sample actor {%a}: on!", sample)
                     // register sample
