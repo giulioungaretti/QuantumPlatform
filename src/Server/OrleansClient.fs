@@ -17,8 +17,13 @@ let buildClient (url : string) (serviceProvider : IServiceProvider) =
     builder.Configure<ClusterOptions>(fun (options : ClusterOptions) ->
                                            options.ClusterId <- "orleans-dev-docker"
                                            options.ServiceId <- "FsharpOrleansDev")
+
+        #if DEBUG
+        .UseLocalhostClustering()
+        #else
         .UseAzureStorageClustering(fun (options : AzureStorageGatewayOptions) ->
                                          options.ConnectionString <- url)
+        #endif
         .ConfigureApplicationParts(fun parts ->
                                         parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
                                              .AddApplicationPart(typeof<ISample>.Assembly)
@@ -26,6 +31,10 @@ let buildClient (url : string) (serviceProvider : IServiceProvider) =
                                              .AddApplicationPart(typeof<ISamples>.Assembly)
                                              .AddApplicationPart(typeof<SampleStateGrain>.Assembly)
                                              .AddApplicationPart(typeof<ISampleState>.Assembly)
+                                             .AddApplicationPart(typeof<MeasurementStateGrain>.Assembly)
+                                             .AddApplicationPart(typeof<IMeasurementState>.Assembly)
+                                             .AddApplicationPart(typeof<MeasurementsGrain>.Assembly)
+                                             .AddApplicationPart(typeof<IMeasurements>.Assembly)
                                              .WithCodeGeneration()
                                         |> ignore)
         .Build()

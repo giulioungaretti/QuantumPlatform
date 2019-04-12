@@ -29,6 +29,7 @@ let initialModel() =
     { Sample =
           { Name = None
             GUID = System.Guid.NewGuid()
+            Steps = None
             Time = time() }
       Error = None }
 

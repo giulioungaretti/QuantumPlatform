@@ -15,14 +15,16 @@ open Config
 open URL
 
 
-let asd = @"/bar/%O"
 let webApp =
     choose [ subRoute URL.api
                  (choose
                       [ GET >=> choose [ 
                                          routef URL.getSample handleGetSample
+                                         routef URL.getMeasurement handleGetSampleMeasurements
+                                         route URL.measurements >=> handleGetMeasurements
                                          route URL.samples >=> handleGetSamples ]
-                        POST >=> choose [ route URL.sample >=> handlePostSample ] ])
+                        POST >=> choose [ route URL.sample >=> handlePostSample
+                                          route URL.measurement >=> handlePostMeasurement ] ])
              setStatusCode 404 >=> text "Not Found giraffe" ]
 
 // ---------------------------------
@@ -43,7 +45,8 @@ let configureCors (builder : CorsPolicyBuilder) =
 let configureApp (app : IApplicationBuilder) =
     let env = app.ApplicationServices.GetService<IHostingEnvironment>()
     (match env.IsDevelopment() with
-     | true -> app.UseDeveloperExceptionPage()
+     | true -> 
+        app.UseGiraffeErrorHandler errorHandler
      | false -> app.UseGiraffeErrorHandler errorHandler)
         .UseHttpsRedirection()
         .UseCors(configureCors)

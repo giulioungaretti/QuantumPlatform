@@ -1,16 +1,6 @@
 namespace Shared
 
 [<CLIMutable>]
-type Sample =
-    { Name : string option
-      GUID : System.Guid
-      Time : int64 }
-    member this.toTime = 
-        this.Time
-        |> System.DateTimeOffset.FromUnixTimeSeconds
-
-
-[<CLIMutable>]
 type Step =
     { Name : string option
       GUID : System.Guid
@@ -20,9 +10,13 @@ type Step =
         |> System.DateTimeOffset.FromUnixTimeSeconds
 
 [<CLIMutable>]
-type Measurement =
+type Steps = Step list
+
+[<CLIMutable>]
+type Sample =
     { Name : string option
       GUID : System.Guid
+      Steps : Steps Option 
       Time : int64 }
     member this.toTime = 
         this.Time
@@ -38,6 +32,25 @@ type Run =
         this.Time
         |> System.DateTimeOffset.FromUnixTimeSeconds
 
+[<CLIMutable>]
+type Runs = Run list
+
+
+[<CLIMutable>]
+type Measurement =
+    { Name : string option
+      GUID : System.Guid
+      SampleGUID : System.Guid
+      Runs : Runs option
+      Time : int64 }
+    member this.toTime = 
+        this.Time
+        |> System.DateTimeOffset.FromUnixTimeSeconds
+
+
+
+[<CLIMutable>]
+type Measurements =  Measurement list
 
 [<CLIMutable>]
 type Samples =  Sample list
@@ -46,3 +59,5 @@ type Samples =  Sample list
 module Error =
     [<Literal>]
     let  SampleExists = "SampleExists"
+    let  SampleDoesNotExists = "SampleDoesNotExists"
+    let  MeasurementExists = "MeasurementExists"
