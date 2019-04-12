@@ -53,12 +53,12 @@ module HttpHandlers =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             let log = ctx.GetLogger("handlePostSample")
             task {
-                let client = ctx.GetService<Orleans.IClusterClient>()
-                let! sample = ctx.BindModelAsync<Sample>()
-                let sampleGrain =
-                    client.GetGrain<ISampleState> <| sample.GUID 
-                // save sample
                 try
+                    let client = ctx.GetService<Orleans.IClusterClient>()
+                    let! sample = ctx.BindModelAsync<Sample>()
+                    let sampleGrain =
+                        client.GetGrain<ISampleState> <| sample.GUID 
+                    asdr// save sample
                     do! sampleGrain.NewSample(sample)
                     log.LogDebug("Sample actor {%a}: on!", sample)
                     // register sample
@@ -71,4 +71,9 @@ module HttpHandlers =
                     | Failure (Error.SampleExists) ->
                         ctx.SetStatusCode 400
                         return! ctx.WriteTextAsync Error.SampleExists
+                    | exn ->
+                        ctx.SetStatusCode 500
+                        log.LogError("Something went wrong wiht grain", exn.ToString ())
+                        return! ctx.WriteTextAsync "Sorry not sorry" 
+
             }

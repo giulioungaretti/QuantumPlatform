@@ -141,6 +141,7 @@ module app =
         | (ClearError, _ ) ->
             {model with error = None}, Cmd.none
         // wrong message to wrong page
-        | (_, _) -> 
-            Fable.Import.Browser.console.error "Got message for wrong page!" 
+        | (msg, page) -> 
+            let errorMsg = sprintf "Unexpected msg:%O for page:%O" msg page
+            Fable.Import.Browser.console.error errorMsg 
             model, Cmd.none

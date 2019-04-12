@@ -6,6 +6,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Server",
+      "cwd": "${workspaceFolder}/Server",
       "program": "${workspaceFolder}/Server/bin/Debug/netcoreapp2.2/Server.dll",
       "args": [],
       "logging": {
