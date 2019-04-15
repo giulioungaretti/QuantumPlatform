@@ -20,6 +20,7 @@
       <PackageReference Include="Fable.Elmish.Debugger" Version="2.0.3" />
       <PackageReference Include="Fable.Elmish.HMR" Version="3.2.0" />
       <PackageReference Include="Fable.Elmish.React" Version="2.2.0" />
+      <PackageReference Include="Fable.FontAwesome" Version="1.0.0" />
       <PackageReference Include="Fable.FontAwesome.Free" Version="1.0.0" />
       <PackageReference Include="Fulma.Extensions.Wikiki.PageLoader" Version="1.0.0"/>
       <PackageReference Include="Fulma" Version="1.1.0" />

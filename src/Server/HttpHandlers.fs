@@ -6,6 +6,9 @@ open System.Threading.Tasks
 
 open Interfaces
 open Shared
+open Microsoft.AspNetCore.Http
+open FSharp.Control.Tasks.TaskBuilder
+open Grains
 
 module HttpHandlers =
     open FSharp.Control.Tasks.V2.ContextInsensitive
@@ -89,6 +92,23 @@ module HttpHandlers =
                     log.LogDebug("%{a}got Measurements", measurements'')
                     return! ctx.WriteJsonAsync measurements''
                 }
+        )
+    
+    let handlePostStep guid =
+        handleContext(
+            fun(ctx:HttpContext) ->
+                let log = ctx.GetLogger("handlePostStep")
+                task {
+                    let client = ctx.GetService<Orleans.IClusterClient>()
+                    let! step = ctx.BindModelAsync<Step>()
+                    let sampleGrain = client.GetGrain<ISampleState> guid
+                    do! sampleGrain.NewStep step
+                    log.LogDebug("step {%a} added to sample {%O}", step, guid)
+                    // let asd:HttpHandler = text "a"
+                    // let res: HttpFuncResult = Successful.OK "a"
+                    return Some ctx
+                }
+
         )
 
     let handlePostSample: HttpHandler =

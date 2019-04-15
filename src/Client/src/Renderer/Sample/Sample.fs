@@ -1,6 +1,7 @@
 module Sample
 
 open Elmish
+open Elmish.Browser.Navigation
 open Fable.Helpers.React
 open Fable.PowerPack.Fetch
 open Thoth.Json
@@ -9,27 +10,37 @@ open Routes
 open Shared
 open URL
 open Fulma
-open Fulma
+open Fable.FontAwesome
 
-// open Style
+
+type PageState =
+    | Viewing 
+    | AddingStep of Step
+
 type Model =
     { Sample : Sample
+      PageState: PageState
       Error : string option }
 
 type Msg =
+    | NoOp
     | SampleName of string
-    | PostSample
-    | PostedSample of Result<Response,exn>
+    | PostStep  of Step
+    | Discard
+    | PostedStep of Result<Response,exn>
     | ClearError
+    | AddStep
+    | UpdateStep of Step
 
-// initialModel represents the starting model of this page
-let time =
+let time () =
     (System.DateTime.Now |> System.DateTimeOffset)
         .ToUnixTimeSeconds()
 
 let initialModel sample =
     { Sample = sample
+      PageState = Viewing
       Error = None }
+
 
 // place hodler for now, this is to be used if this page needs to load
 // data before becoming the current page
@@ -52,22 +63,54 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
     | SampleName sampleName ->
         let newSample' = { model.Sample with Name = Some sampleName }
         { model with Sample = newSample' }, Cmd.none
-    |  PostSample ->
-        let post = postRecord (URL.apiURL URL.sample) model.Sample
+    |   PostStep step ->
+        let stepURL = sprintf URL.postStep model.Sample.GUID
+        let post = postRecord (URL.apiURL stepURL ) step
         let cmd = 
                     Cmd.ofPromise
                          post
                          []
-                         (Ok >> PostedSample)
-                         (Error >> PostedSample)
+                         (Ok >> PostedStep)
+                         (Error >> PostedStep)
 
         model,  cmd
-    | PostedSample (Ok _ ) ->
-        model, Cmd.none
-    | PostedSample (Error error) ->
+    | PostedStep (Ok _ ) ->
+        match model.PageState with
+        |Viewing ->
+            model, Cmd.none
+        |AddingStep step  ->
+            let newRoute = 
+                model.Sample.GUID.ToString ()
+                |> SampleRoute.Sample
+                |> Route.Sample
+                |> Routes.toString
+            {model with 
+                PageState = Viewing
+                Sample = model.Sample.AddStep step},
+             Navigation.newUrl newRoute
+    | PostedStep (Error error) ->
         {model with Error = Some <| error.ToString () }, Cmd.none
+    | AddStep ->
+        {model with PageState = AddingStep <| {Name = None
+                                               GUID = System.Guid.NewGuid () 
+                                               Time= time() }
+
+         }, Cmd.none 
+    | UpdateStep step -> 
+        {model with PageState = AddingStep step }
+         , Cmd.none 
     | ClearError ->
         { model with Error = None}, Cmd.none
+    | Discard ->
+        let newRoute = 
+            model.Sample.GUID.ToString ()
+            |> SampleRoute.Sample
+            |> Route.Sample
+            |> Routes.toString
+        {model with PageState = Viewing},  
+         Navigation.newUrl newRoute
+    | NoOp ->
+        model, Cmd.none
 
 
 let button color txt onClickmsg dispatch =
@@ -87,43 +130,108 @@ let input placeHolder msg dispatch =
                      ev.Value |> (msg >> dispatch))
                  Input.Placeholder placeHolder ]
 
+let viewHeader placeHolder maybeTitle (time:System.DateTimeOffset) =
+     [Level.right []
+          [ Level.title []
+                        [ str
+                          <| Option.defaultValue placeHolder 
+                                 maybeTitle ]
+            ]
+
+      Level.right []
+          [ Level.item [] []
+
+            Level.item []
+                [ div []
+                      [ Level.heading []
+                            [ str "created on:" ]
+
+                        div []
+                            [ str
+                              <| time.LocalDateTime
+                                                .ToShortDateString()
+                                     ] ] ] ] 
+        ]
+
+
+let viewFooter dispatch =
+        Card.Footer.div[][
+            Button.button [ Button.OnClick (fun _ -> dispatch AddStep ) ]
+                       [ Icon.icon [ ]
+                            [ Fa.i [ Fa.Solid.Plus ]
+                               [ ] ] ]
+            Level.heading [] [str "Add step"]
+           ]
+
+let viewContent page (sample: Sample) (dispatch)=
+              [ Level.level []
+                    [ Level.item []
+                          [ Level.title []
+                                        [ str
+                                          <| Option.defaultValue "Untitled sample"
+                                                 sample.Name  ]
+                       ]
+
+                      Level.right []
+                          [ Level.item [] []
+
+                            Level.item []
+                                [ div []
+                                      [ Level.heading []
+                                            [ str "created on:" ]
+
+                                        div []
+                                            [ str
+                                              <| sample.toTime.LocalDateTime
+                                                                .ToShortDateString()
+                                                     ] ] ] ] ] 
+                Section.section [] <|
+                                [Card.card [] [
+                                    Card.header []
+                                                  [ Card.Header.title []
+                                                        [ str "steps"] ]
+                                    Card.content[]  <|
+                                                    match page with
+                                                    | Viewing  ->
+                                                        List.map (fun (s:Step) -> Level.level [] <| 
+                                                                                    viewHeader "Untitled step" s.Name s.toTime) <|
+                                                                                                    Option.defaultValue [] sample.Steps
+                                                    | AddingStep step  ->
+                                                        let cont =
+                                                            List.map (fun (s:Step) -> Level.level [] <| 
+                                                                                        viewHeader "Untitled step" s.Name s.toTime) <|
+                                                                                                    Option.defaultValue [] sample.Steps
+                                                        let input = 
+                                                         Level.item [][ 
+                                                              div [ Props.ClassName "fullWidth" ] [
+                                                              Level.heading [] [str "Step name"]
+                                                              input "Step name"  (fun s->  UpdateStep {step with Name = Some s}) dispatch]
+                                                              ]
+                                                        List.append  cont [input]
+                                              
+                                    Card.footer [] [
+                                        match page with
+                                        | Viewing  ->
+                                            yield viewFooter dispatch
+                                        | AddingStep step ->
+                                          yield Card.Footer.a [ ]
+                                                                   [ button IsBlack "Add"  (PostStep step) dispatch] 
+
+                                          yield Card.Footer.a [ ]
+                                                          [ button IsDanger "discard"  Discard dispatch ] 
+                                        ]
+                                  ]
+                                 ]
+                ]
+
+
 let view (model : Model) (dispatch : Msg -> unit) =
     Errors.wrap model.Error 
                (Card.card [] 
-                        [ Card.header []
-                              [ Card.Header.title []
-                                    [ str ""] ]
+                        [ 
 
-                          Card.content []
-                              [ Level.level []
-                                    [ Level.item []
-                                          [ Level.title []
-                                                        [ str
-                                                          <| Option.defaultValue "Untitled sample"
-                                                                 model.Sample.Name  ]
-                                       ]
+                          Card.content [] <| viewContent model.PageState model.Sample dispatch
 
-                                      Level.right []
-                                          [ Level.item [] []
-
-                                            Level.item []
-                                                [ div []
-                                                      [ Level.heading []
-                                                            [ str "created on:" ]
-
-                                                        div []
-                                                            [ str
-                                                              <| model.Sample.toTime.LocalDateTime
-                                                                                .ToShortDateString()
-                                                                     ] ] ] ] ] ]
-
-                          Card.footer []
-                              [ Card.Footer.a [ ]
-                                               [ button IsBlack "save" PostSample dispatch] 
-
-                                Card.Footer.a [ GenericOption.Props [ href Route.Home ] ]
-                                              [ button IsDanger "discard" PostSample dispatch ] 
-                              ]
                     ])
                     ClearError dispatch
 

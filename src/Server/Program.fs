@@ -24,6 +24,7 @@ let webApp =
                                          route URL.measurements >=> handleGetMeasurements
                                          route URL.samples >=> handleGetSamples ]
                         POST >=> choose [ route URL.sample >=> handlePostSample
+                                          routef URL.postStep handlePostStep
                                           route URL.measurement >=> handlePostMeasurement ] ])
              setStatusCode 404 >=> text "Not Found giraffe" ]
 

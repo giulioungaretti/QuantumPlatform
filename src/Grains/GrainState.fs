@@ -12,9 +12,8 @@ open System.Collections.Generic
 type SampleHolder(sample : Sample option) =
     new() = SampleHolder None
     member val Sample : Sample option = sample with get, set
+    // member val Steps : Shared.Steps option = None with get, set
     member val Measurements = new Dictionary<System.Guid, IMeasurementState> () with get,set
-    // member val Measurements = Map.empty with get, set
-
 
     member this.Apply (event: Event) : SampleHolder =
         match event with
@@ -23,12 +22,17 @@ type SampleHolder(sample : Sample option) =
             this.Sample <- Some sample
             this
         | NewStep step ->
-            printfn "new step %O" step
-            this
+            match this.Sample with
+            | Some sample ->
+                printfn "new step %O" step
+                this.Sample <- Some <| sample.AddStep step
+                this
+            | None ->
+                this
+
         | Event.NewMeasurement (guid, meas) ->
             printfn "new measurement %O" guid
             this.Measurements.Add(guid, meas)
-            //  this.Measurements.Add (guid, meas)
             this
 
             

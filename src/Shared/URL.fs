@@ -8,6 +8,8 @@ module URL=
 
     let getSample = PrintfFormat<(System.Guid -> string),unit,string,string,System.Guid>"/sample/%O" 
     let getMeasurement = PrintfFormat<(System.Guid -> string),unit,string,string,System.Guid>"/measurement/%O" 
+    let postStep = PrintfFormat<(System.Guid -> string),unit,string,string,System.Guid>"/step/%O" 
+
     [<Literal>]
     let sample = "/sample"
     [<Literal>]

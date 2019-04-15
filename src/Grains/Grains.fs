@@ -29,8 +29,13 @@ type SampleStateGrain(log:ILogger<SampleStateGrain>) =
                 this.ConfirmEvents ()
 
         member this.NewStep(step: Step): Task = 
-            this.RaiseEvent(Event.NewStep step)
-            this.ConfirmEvents ()
+            match this.State.Sample with
+            | Some _x ->
+                this.RaiseEvent(Event.NewStep step)
+                this.ConfirmEvents ()
+            | None ->
+                failwith Error.SampleDoesNotExists
+
          
         member this.NewMeasurement(guid): Task=
             let measurementGrainRef = this.GrainFactory.GetGrain<IMeasurementState> guid

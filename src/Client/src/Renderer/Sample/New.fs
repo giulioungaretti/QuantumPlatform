@@ -67,7 +67,6 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
             |> SampleRoute.Sample
             |> Route.Sample
             |> Routes.toString
-        do printf "%s" newRoute
         model, Navigation.newUrl newRoute
     | PostedSample (Error error) ->
         {model with Error = Some <| error.ToString () }, Cmd.none

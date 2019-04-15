@@ -21,7 +21,12 @@ type Sample =
     member this.toTime = 
         this.Time
         |> System.DateTimeOffset.FromUnixTimeSeconds
-
+    member this.AddStep (step:Step) =
+        match this.Steps with
+                      | Some steps ->
+                          {this with Steps =  Some <| List.append steps [step]}
+                      | _ ->
+                          {this with Steps =  Some <| List.singleton step}
 
 [<CLIMutable>]
 type Run =
