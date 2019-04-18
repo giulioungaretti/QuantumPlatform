@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Thoth.Json.Giraffe" Version="1.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Include="URL.fs" />
     <Compile Include="Shared.fs" />
   </ItemGroup>

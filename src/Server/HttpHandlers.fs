@@ -6,6 +6,9 @@ open System.Threading.Tasks
 
 open Interfaces
 open Shared
+open Microsoft.AspNetCore.Http
+open FSharp.Control.Tasks.TaskBuilder
+open Grains
 
 module HttpHandlers =
     open FSharp.Control.Tasks.V2.ContextInsensitive
@@ -13,7 +16,7 @@ module HttpHandlers =
 
     let handleGetSample (guid)=
         fun (next : HttpFunc) (ctx : HttpContext) ->
-            let log = ctx.GetLogger("handleGetHello")
+            let log = ctx.GetLogger("handleGetSample")
             task {
                 let client = ctx.GetService<Orleans.IClusterClient>()
                 log.LogInformation("got clinet")
@@ -25,6 +28,27 @@ module HttpHandlers =
                 match sample with
                 | Some sample' ->
                     return! json sample' next ctx
+                | None ->
+                    ctx.SetStatusCode 404
+                    return! ctx.WriteTextAsync "Could not find sample"
+            }
+
+    let handleGetSampleMeasurements sampleGuid =
+        fun (next : HttpFunc) (ctx : HttpContext) ->
+            let log = ctx.GetLogger("handleGetSampleMeasurements")
+            task {
+                let client = ctx.GetService<Orleans.IClusterClient>()
+                log.LogInformation("got clinet")
+                // NOTE: create the grain anyway even tho it could be waste of space
+                // the post with the same guid will reuse this grain
+                let samplet = (client.GetGrain<ISampleState> sampleGuid)
+                let! sample = samplet.GetSample()
+                log.LogDebug ("got sample {%a}", sample)
+                // then just 404 if the grain did not contain an existing sample!
+                match sample with
+                | Some _ ->
+                    let! measurements = samplet.GetMeasurements()
+                    return! json measurements next ctx
                 | None ->
                     ctx.SetStatusCode 404
                     return! ctx.WriteTextAsync "Could not find sample"
@@ -49,6 +73,44 @@ module HttpHandlers =
                     return! ctx.WriteJsonAsync samples''
                 }
         )
+
+    let handleGetMeasurements: HttpFunc -> HttpContext -> Task<HttpContext option>  =
+        handleContext (
+            fun (ctx:HttpContext) ->
+                let log = ctx.GetLogger("handleGetMeasurements")
+                task {
+                    let client = ctx.GetService<Orleans.IClusterClient>()
+                    let userid = 0L
+                    let measurementsGrain = client.GetGrain<IMeasurements>userid
+                    let! measurements = measurementsGrain.All()
+                    let! measurements' = Task.WhenAll  (List.map 
+                                                             (fun (m : IMeasurementState) 
+                                                                    -> m.GetMeasurement()) 
+                                                              measurements) 
+                    let measurements'': Measurements = Seq.choose id measurements'
+                                                           |> List.ofSeq
+                    log.LogDebug("%{a}got Measurements", measurements'')
+                    return! ctx.WriteJsonAsync measurements''
+                }
+        )
+    
+    let handlePostStep guid =
+        handleContext(
+            fun(ctx:HttpContext) ->
+                let log = ctx.GetLogger("handlePostStep")
+                task {
+                    let client = ctx.GetService<Orleans.IClusterClient>()
+                    let! step = ctx.BindModelAsync<Step>()
+                    let sampleGrain = client.GetGrain<ISampleState> guid
+                    do! sampleGrain.NewStep step
+                    log.LogDebug("step {%a} added to sample {%O}", step, guid)
+                    // let asd:HttpHandler = text "a"
+                    // let res: HttpFuncResult = Successful.OK "a"
+                    return Some ctx
+                }
+
+        )
+
     let handlePostSample: HttpHandler =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             let log = ctx.GetLogger("handlePostSample")
@@ -58,22 +120,46 @@ module HttpHandlers =
                     let! sample = ctx.BindModelAsync<Sample>()
                     let sampleGrain =
                         client.GetGrain<ISampleState> <| sample.GUID 
-                    asdr// save sample
+                    // save sample
                     do! sampleGrain.NewSample(sample)
-                    log.LogDebug("Sample actor {%a}: on!", sample)
+                    log.LogDebug("Sample grain {%a}: on!", sample)
+
+                    // NOTE: this is a bit tricky and could use a transaction
+                    // if the registration below fails, we have miss the sample in the 
+                    // samples registry.
+
                     // register sample
                     let userid = 0L
                     let samplesGrain = client.GetGrain<ISamples>userid
                     let! _ = samplesGrain.Register(sampleGrain)
-                    log.LogDebug("Sample actor {%a}: registered!", sample)
+                    log.LogDebug("Sample grain {%a}: registered!", sample)
                     return! next ctx
                 with
                     | Failure (Error.SampleExists) ->
                         ctx.SetStatusCode 400
                         return! ctx.WriteTextAsync Error.SampleExists
                     | exn ->
+                        let msg = exn.ToString()
                         ctx.SetStatusCode 500
-                        log.LogError("Something went wrong wiht grain", exn.ToString ())
-                        return! ctx.WriteTextAsync "Sorry not sorry" 
+                        log.LogError("Something went wrong wiht grain", msg)
+                        return! ctx.WriteTextAsync msg
 
+            }
+
+    let handlePostMeasurement: HttpHandler =
+        fun(next: HttpFunc) (ctx: HttpContext) ->
+            let log = ctx.GetLogger("handlePostMeasurement")
+            task{
+                let client = ctx.GetService<Orleans.IClusterClient> ()
+                let! measurement = ctx.BindModelAsync<Measurement> ()
+                let measurementGrain = client.GetGrain<IMeasurementState>  measurement.GUID
+                // save measurement
+                do! measurementGrain.NewMeasurement measurement
+                log.LogDebug("Sample grain %a: on!", measurement)
+                // register measurement
+                let userid = 0L
+                let measurementsGrain = client.GetGrain<IMeasurements> userid
+                do!  measurementsGrain.Register measurementGrain
+                log.LogDebug("Measurement grain %a: registered", measurementGrain)
+                return! next ctx
             }

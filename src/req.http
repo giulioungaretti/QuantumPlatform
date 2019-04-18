@@ -1,7 +1,18 @@
 
 ###
-
+#TODO: update thoth json to the last version in the server serializer generator
+# to avoid passing nulls on optional json fields!
 POST https://localhost:5003/api/sample HTTP/1.1
+content-type: application/json
+
+{
+    "GUID" : "eefa2623-1b30-4e2d-877c-7a907e941213",
+    "Name": "samplea",
+    "Steps" : null,
+    "Time":  1554676799,
+}
+###
+POST https://localhost:5003/api/step/eefa2623-1b30-4e2d-877c-7a907e941213 HTTP/1.1
 content-type: application/json
 
 {
@@ -9,5 +20,23 @@ content-type: application/json
     "Name": "samplea",
     "Time":  1554676799,
 }
+####
+POST https://localhost:5003/api/measurement HTTP/1.1
+content-type: application/json
+
+{
+    "GUID" : "eefa2623-2b30-4e2d-877c-7a907e941213",
+    "SampleGUID" : "eefa2623-1b30-4e2d-877c-7a907e941213",
+    "Name": "measurement",
+    "Runs": null,
+    "Time":  1554676790,
+}
 ###
 GET https://localhost:5003/api/samples HTTP/1.1
+####
+GET https://localhost:5003/api/sample/eefa2623-1b30-4e2d-877c-7a907e941213 HTTP/1.1
+
+####
+GET https://localhost:5003/api/measurement/eefa2623-1b30-4e2d-877c-7a907e941213 HTTP/1.1
+###
+GET https://localhost:5003/api/measurements HTTP/1.1

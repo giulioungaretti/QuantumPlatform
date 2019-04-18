@@ -20,8 +20,12 @@ let buildSiloHost (context : Microsoft.Extensions.Hosting.HostBuilderContext)
                                                options.ServiceId <- "FsharpOrleansDev")
         .ConfigureEndpoints(siloPort = 11111, gatewayPort = 30000)
         .AddMemoryGrainStorage("OrleansStorage")
+        #if DEBUG
+        .UseLocalhostClustering()
+        #else
         .UseAzureStorageClustering(fun (options : AzureStorageClusteringOptions) ->
                                             options.ConnectionString <- url)
+        #endif
         .ConfigureApplicationParts(fun parts ->
                     parts.AddApplicationPart(typeof<SampleGrain>.Assembly)
                          .AddApplicationPart(typeof<ISample>.Assembly)
@@ -29,6 +33,10 @@ let buildSiloHost (context : Microsoft.Extensions.Hosting.HostBuilderContext)
                          .AddApplicationPart(typeof<ISamples>.Assembly)
                          .AddApplicationPart(typeof<SampleStateGrain>.Assembly)
                          .AddApplicationPart(typeof<ISampleState>.Assembly)
+                         .AddApplicationPart(typeof<MeasurementStateGrain>.Assembly)
+                         .AddApplicationPart(typeof<IMeasurementState>.Assembly)
+                         .AddApplicationPart(typeof<MeasurementsGrain>.Assembly)
+                         .AddApplicationPart(typeof<IMeasurements>.Assembly)
                          .WithCodeGeneration()
                     |> ignore)
     |> ignore
