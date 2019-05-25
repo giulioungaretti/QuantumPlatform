@@ -2,8 +2,8 @@ module Entry
 
 open Elmish
 open Elmish.React
-open Elmish.Browser.Navigation
-open Elmish.Browser.UrlParser
+open Elmish.Navigation
+open Elmish.UrlParser
 open Client.app
 #if DEBUG
 open Elmish.Debug
@@ -17,11 +17,12 @@ Program.mkProgram init update view
 |> Program.withConsoleTrace
 #endif
 
-|> Program.withReact "elmish-app"
+|> Program.withReactBatched "elmish-app"
 #if DEBUG
 |> Program.withDebugger
 #endif
 
 |> Program.toNavigable (parseHash Routes.route)
        (fun route model -> model, Cmd.ofMsg <| Msg.SetRoute route)
+
 |> Program.run

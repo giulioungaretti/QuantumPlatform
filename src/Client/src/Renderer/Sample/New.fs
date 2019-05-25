@@ -2,13 +2,14 @@
 module Sample.New
 
 open Elmish
-open Fable.Helpers.React
-open Fable.PowerPack.Fetch
+open Fable.React
 open Routes
 open Shared
 open URL
 open Fulma
-open Elmish.Browser.Navigation
+open Thoth.Fetch
+open Fetch.Types
+open Elmish.Navigation
 
 type Model =
     { Sample : Sample
@@ -50,15 +51,15 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         let newSample' = { model.Sample with Name = Some sampleName }
         { model with Sample = newSample' }, Cmd.none
     |  PostSample ->
-        let post = postRecord (URL.apiURL URL.sample) model.Sample
-        let cmd = 
-                    Cmd.ofPromise
-                         post
-                         []
-                         (Ok >> PostedSample)
-                         (Error >> PostedSample)
+        // let post _ = Fetch.post((URL.apiURL URL.sample), model.Sample, isCamelCase = true)
+        // let cmd = 
+        //             Cmd.OfPromise.either
+        //                  post
+        //                  []
+        //                  (Ok >> PostedSample)
+        //                  (Error >> PostedSample)
 
-        model,  cmd
+        model,  Cmd.none
     | PostedSample (Ok _ ) ->
         //NOTE: this can be improved by using and external message and passing the state up
         //instead we re-route and thus roundtrip to the server to get the same data :/ 

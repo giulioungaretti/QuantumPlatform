@@ -1,8 +1,8 @@
 namespace Client
 
 open Elmish
-open Elmish.Browser.Navigation
-open Fable.Helpers.React
+open Elmish.Navigation
+open Fable.React
 
 open Fulma
 open Fulma.Extensions.Wikiki
@@ -10,6 +10,7 @@ open Fulma.Extensions.Wikiki
 open Samples
 open Shared
 open Routes
+open Fable.Import
 // MODEL
 module app =
 
@@ -143,5 +144,5 @@ module app =
         // wrong message to wrong page
         | (msg, page) -> 
             let errorMsg = sprintf "Unexpected msg:%O for page:%O" msg page
-            Fable.Import.Browser.console.error errorMsg 
+            Browser.Dom.console.error errorMsg 
             model, Cmd.none

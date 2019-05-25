@@ -1,7 +1,6 @@
 module Errors
 
-open Fable.Import.React
-open Fable.Helpers.React
+open Fable.React
 open Fulma
 
 

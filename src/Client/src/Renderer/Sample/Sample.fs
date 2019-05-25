@@ -1,10 +1,10 @@
 module Sample
 
 open Elmish
-open Elmish.Browser.Navigation
-open Fable.Helpers.React
-open Fable.PowerPack.Fetch
-open Thoth.Json
+open Elmish.Navigation
+open Fable.React
+open Fetch.Types
+open Thoth.Fetch
 
 open Routes
 open Shared
@@ -47,8 +47,8 @@ let initialModel sample =
 let init(guid: System.Guid) (msg: Result<Sample, System.Exception> -> 'msg) :  Cmd<'msg> =
     // fetch some side effect (e.g. inital data load from a server)
     let sampleUlr = sprintf URL.URL.getSample guid
-    let sampleFetch = fetchAs<Sample> (URL.apiURL sampleUlr) (Decode.Auto.generateDecoder())
-    Cmd.ofPromise
+    let sampleFetch _ = Fetch.fetchAs<Sample> (URL.apiURL sampleUlr)
+    Cmd.OfPromise.either
         sampleFetch
         []
         (Ok >> msg)
@@ -65,15 +65,15 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         { model with Sample = newSample' }, Cmd.none
     |   PostStep step ->
         let stepURL = sprintf URL.postStep model.Sample.GUID
-        let post = postRecord (URL.apiURL stepURL ) step
-        let cmd = 
-                    Cmd.ofPromise
-                         post
-                         []
-                         (Ok >> PostedStep)
-                         (Error >> PostedStep)
+        // let post _ = Fetch.post ( (URL.apiURL stepURL ), step)
+        // let cmd = 
+        //             Cmd.OfPromise.either
+        //                  post
+        //                  []
+        //                  (Ok >> PostedStep)
+        //                  (Error >> PostedStep)
 
-        model,  cmd
+        model,  Cmd.none
     | PostedStep (Ok _ ) ->
         match model.PageState with
         |Viewing ->

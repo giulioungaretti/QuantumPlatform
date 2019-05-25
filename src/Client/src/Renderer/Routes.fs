@@ -1,7 +1,8 @@
 module Routes
 
-open Fable.Import.Browser
-open Elmish.Browser.UrlParser
+open Elmish
+open Elmish.UrlParser
+open Browser
 
 [<RequireQualifiedAccess>]
 type SampleRoute =
@@ -58,9 +59,7 @@ let route : Parser<Route->Route,Route> =
     ]
 
 let href =
-    toString >> Fable.Helpers.React.Props.Href
-
-
+    toString >> Fable.React.Props.Href
 
 
 // type alias to browsers navigation event 
@@ -69,17 +68,9 @@ let private NavigationEvent = "NavigationEvent"
 
 // go to a an unsafe string url
 let newUrl (newUrl : string) : Elmish.Cmd<_> =
-    [ fun _ -> 
-        history.pushState ((), "", newUrl)
-        let ev = document.createEvent_CustomEvent()
-        ev.initCustomEvent (NavigationEvent, true, true, obj())
-        window.dispatchEvent ev |> ignore ]
+    Navigation.Navigation.newUrl newUrl
 
 // go to safer url
 let navigate xs : Elmish.Cmd<_> =
     let nextUrl = hashPrefix (combine xs)
-    [ fun _ -> 
-        history.pushState ((), "", nextUrl)
-        let ev = document.createEvent_CustomEvent()
-        ev.initCustomEvent (NavigationEvent, true, true, obj())
-        window.dispatchEvent ev |> ignore ]
+    Navigation.Navigation.newUrl nextUrl

@@ -1,17 +1,19 @@
 namespace Samples
 
 open Elmish
-open Elmish.Browser.Navigation
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
-open Fable.PowerPack.Fetch
-open Thoth.Json
+open Elmish.Navigation
+open Fable.React
+open Fable.React.Props
+open Fetch
+open Fetch.Types
+open Thoth.Fetch
 
 
 open Routes
 open Shared
 open URL.URL
 open Fulma
+open Thoth.Fetch
 
 // open Style
 [<RequireQualifiedAccessAttribute>]
@@ -30,12 +32,12 @@ module Samples =
         }
 
     let init(msg: Result<Samples, System.Exception> -> 'msg) :  Cmd<'msg> =
-        let samplesFetch = fetchAs<Samples>  (apiURL samples) (Decode.Auto.generateDecoder())
-        Cmd.ofPromise
-            samplesFetch
-            []
-            (Ok >> msg)
-            (Error >> msg)
+        let samplesFetch _ = Fetch.fetchAs<Samples> (apiURL samples) 
+        Cmd.OfPromise.either
+                samplesFetch
+                []
+                (Ok >> msg)
+                (Error >> msg)
 
     // The update function computes the next state of the application based on the current state and the incoming events/messages
     // It can also run side-effects (encoded as commands) like calling the server via Http.
