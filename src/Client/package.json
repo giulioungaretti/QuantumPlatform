@@ -28,7 +28,7 @@
     "react-dom": "^16.8"
   },
   "devDependencies": {
-    "electron": "^4.0",
+    "electron": "^18.3",
     "electron-builder": "^20.39",
     "electron-devtools-installer": "^2.2",
     "electron-webpack": "^2.6",
